@@ -1008,9 +1008,11 @@ function renderLancamentos(){
   if(ft)lans=lans.filter(l=>l.tipo===ft);
   if(fc)lans=lans.filter(l=>l.cat===fc);
   if(fq)lans=lans.filter(l=>l.quem===fq);
-  if(q)lans=lans.filter(l=>(l.desc||'').toLowerCase().includes(q)||(l.cat||'').toLowerCase().includes(q));
+  if(q)lans=lans.filter(l=>(l.desc||'').toLowerCase().includes(q)||(l.cat||'').toLowerCase().includes(q)||String(l.valor).includes(q));
   lans.sort((a,b)=>new Date(b.data)-new Date(a.data));
-  document.getElementById('lan-count').textContent=lans.length+' lançamento'+(lans.length!==1?'s':'');
+  const _totRec=lans.filter(l=>l.tipo==='receita').reduce((s,l)=>s+l.valor,0);
+  const _totDesp=lans.filter(l=>l.tipo==='despesa').reduce((s,l)=>s+l.valor,0);
+  document.getElementById('lan-count').textContent=lans.length+' lançamento'+(lans.length!==1?'s':'')+' · ↑'+fmt(_totRec)+' ↓'+fmt(_totDesp);
   const tb=document.getElementById('lan-tbody');tb.innerHTML='';
   if(!lans.length){tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-icon">📝</div><div class="empty-text">Sem lançamentos neste período</div></div></td></tr>';return}
   lans.forEach(l=>{
@@ -1038,10 +1040,12 @@ function addLancamento(){
   } else {
     const vP=parseFloat((valor/parcelas).toFixed(2));
     const bd=new Date(data+'T00:00:00');
+    const ccSel=cartaoId?S.cartoes.find(c=>String(c.id)===String(cartaoId)):null;
+    const offset=(ccSel&&bd.getDate()>ccSel.fecha)?1:0;
     for(let p=0;p<parcelas;p++){
-      const dt=new Date(bd.getFullYear(),bd.getMonth()+p,bd.getDate());
+      const dt=new Date(bd.getFullYear(),bd.getMonth()+p+offset,bd.getDate());
       const ds=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
-      S.lancamentos.push({id:++S.nextId,data:ds,desc,cat,tipo,quem,valor:vP,cartaoId,obs:'Parcela '+(p+1)+'/'+parcelas,parcela:p+1,totalParcelas:parcelas});
+      S.lancamentos.push({id:++S.nextId,data:ds,desc,cat,tipo,quem,valor:vP,cartaoId,obs:'Parcela '+(p+1)+'/'+parcelas+(offset?' (próx. fatura)':''),parcela:p+1,totalParcelas:parcelas});
     }
   }
   document.getElementById('lan-desc').value='';
@@ -1082,9 +1086,20 @@ function addCategoria(){
 function renderCartoes(){
   const el=document.getElementById('cc-list');el.innerHTML='';
   if(!S.cartoes.length){el.innerHTML='<div class="empty"><div class="empty-icon">💳</div><div class="empty-text">Nenhum cartão cadastrado</div></div>';return}
-  const now=new Date(),m=now.getMonth(),y=now.getFullYear();
+  const now=new Date();
   S.cartoes.forEach(cc=>{
-    const fat=S.lancamentos.filter(l=>l.cartaoId==cc.id&&new Date(l.data+'T00:00:00').getMonth()===m&&new Date(l.data+'T00:00:00').getFullYear()===y&&l.tipo==='despesa').reduce((s,l)=>s+l.valor,0);
+    const today=now.getDate();
+    const cycleStart=today>cc.fecha
+      ?new Date(now.getFullYear(),now.getMonth(),cc.fecha+1)
+      :new Date(now.getFullYear(),now.getMonth()-1,cc.fecha+1);
+    const cycleEnd=today>cc.fecha
+      ?new Date(now.getFullYear(),now.getMonth()+1,cc.fecha)
+      :new Date(now.getFullYear(),now.getMonth(),cc.fecha);
+    const fat=S.lancamentos.filter(l=>{
+      if(l.cartaoId!=cc.id||l.tipo!=='despesa')return false;
+      const d=new Date(l.data+'T00:00:00');
+      return d>=cycleStart&&d<=cycleEnd;
+    }).reduce((s,l)=>s+l.valor,0);
     const pct=cc.limite>0?Math.min(fat/cc.limite*100,100).toFixed(0):0;
     const over=fat>cc.limite;
     el.innerHTML+='<div class="cc-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;position:relative;z-index:1"><div><div style="font-size:24px;margin-bottom:6px">'+(cc.emoji||'💳')+'</div><div style="font-size:18px;font-weight:700;color:#fff">'+cc.nome+'</div><div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:2px">'+cc.dono+' · Fecha dia '+cc.fecha+' · Vence dia '+cc.venc+'</div></div><div style="text-align:right"><div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em">Fatura atual</div><div class="mono" style="font-size:24px;font-weight:500;color:'+(over?'#F98B7F':'var(--gold)')+'">'+fmt(fat)+'</div><div style="font-size:12px;color:rgba(255,255,255,.3)">limite '+fmt(cc.limite)+'</div></div></div><div style="background:rgba(255,255,255,.1);border-radius:4px;height:4px;overflow:hidden;position:relative;z-index:1"><div style="height:100%;width:'+pct+'%;background:'+(over?'#F98B7F':'var(--gold)')+';border-radius:4px"></div></div><div style="display:flex;justify-content:space-between;margin-top:8px;position:relative;z-index:1"><span style="font-size:11px;color:rgba(255,255,255,.3)">'+pct+'% do limite</span><button class="btn btn-sm" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);border:none;cursor:pointer" onclick="removeCartao('+cc.id+')">Remover</button></div></div>';
@@ -1097,7 +1112,7 @@ function addCartao(){
   ['cc-nome','cc-limite','cc-fecha','cc-venc','cc-emoji'].forEach(id=>{document.getElementById(id).value=''});
   save();renderCartoes();updateSelects();
 }
-function removeCartao(id){S.cartoes=S.cartoes.filter(c=>c.id!==id);save();renderCartoes();updateSelects()}
+function removeCartao(id){const bk={...S.cartoes.find(c=>c.id===id)};S.cartoes=S.cartoes.filter(c=>c.id!==id);save();renderCartoes();updateSelects();pushUndo('Cartão removido',()=>{S.cartoes.push(bk);save();renderCartoes();updateSelects();});showToast('Cartão removido','warn',6000);}
 
 function renderRecorrentes(){
   updateSelects();
@@ -1115,7 +1130,7 @@ function addRecorrente(){
   save();renderRecorrentes();
 }
 function toggleRec(id){const r=S.recorrentes.find(x=>x.id===id);if(r)r.ativo=!r.ativo;save();renderRecorrentes()}
-function removeRec(id){S.recorrentes=S.recorrentes.filter(r=>r.id!==id);save();renderRecorrentes()}
+function removeRec(id){const bk={...S.recorrentes.find(r=>r.id===id)};S.recorrentes=S.recorrentes.filter(r=>r.id!==id);save();renderRecorrentes();pushUndo('Recorrente removido',()=>{S.recorrentes.push(bk);save();renderRecorrentes();});showToast('Recorrente removido','warn',6000);}
 
 function renderAssinaturas(){
   const tot=S.assinaturas.reduce((s,a)=>s+a.valor,0);
@@ -1139,7 +1154,7 @@ function addAssinatura(){
   ['sub-nome','sub-emoji','sub-valor','sub-venc'].forEach(id=>{document.getElementById(id).value=''});
   save();renderAssinaturas();
 }
-function removeSub(id){S.assinaturas=S.assinaturas.filter(a=>a.id!==id);save();renderAssinaturas()}
+function removeSub(id){const bk={...S.assinaturas.find(a=>a.id===id)};S.assinaturas=S.assinaturas.filter(a=>a.id!==id);save();renderAssinaturas();pushUndo('Assinatura removida',()=>{S.assinaturas.push(bk);save();renderAssinaturas();});showToast('Assinatura removida','warn',6000);}
 
 function renderFluxo(){
   const recR=S.recorrentes.filter(r=>r.ativo&&r.tipo==='receita').reduce((s,r)=>s+r.valor,0);
@@ -1218,7 +1233,7 @@ function calcBolaDeNeve(){
     sorted.map((d,i)=>{const tot=d.min+(i===0?extra:0);const meses=tot>0?Math.ceil(d.saldo/tot):'∞';return'<tr><td><span class="badge navy">#'+(i+1)+'</span></td><td>'+d.nome+'</td><td class="mono" style="color:var(--red);font-weight:600">'+fmt(d.saldo)+'</td><td class="mono">'+d.juros+'%</td><td class="mono">'+fmt(d.min)+'</td><td class="mono" style="color:'+(i===0?'var(--green)':'var(--text-dim)')+';font-weight:'+(i===0?'600':'400')+'">'+(i===0?fmt(extra):'—')+'</td><td><span class="badge '+(meses<=6?'green':meses<=12?'gold':'red')+'">'+meses+' meses</span></td><td><button class="btn btn-danger btn-sm" onclick="removeDiv('+d.id+')">×</button></td></tr>'}).join('')+
     '</tbody></table></div><div class="alert warn" style="margin-top:14px">💡 Pague o mínimo de todas e coloque '+fmt(extra)+' extra na dívida #1. Quando ela zerar, some esse valor à próxima.</div>';
 }
-function removeDiv(id){S.dividas=S.dividas.filter(d=>d.id!==id);save();calcBolaDeNeve()}
+function removeDiv(id){const bk={...S.dividas.find(d=>d.id===id)};S.dividas=S.dividas.filter(d=>d.id!==id);save();calcBolaDeNeve();pushUndo('Dívida removida',()=>{S.dividas.push(bk);save();calcBolaDeNeve();});showToast('Dívida removida','warn',6000);}
 
 function renderHistorico(){
   const now=new Date();const mons=[];
@@ -1264,17 +1279,29 @@ function renderSemanal(){
     '<div class="kpi-card"><div class="kpi-accent" style="background:var(--red)"></div><div class="kpi-label">Despesa do Mês</div><div class="kpi-value red">'+fmt(desp)+'</div></div>'+
     '<div class="kpi-card"><div class="kpi-accent" style="background:var(--navy)"></div><div class="kpi-label">Saldo do Mês</div><div class="kpi-value '+(rec-desp>=0?'navy':'red')+'">'+fmt(rec-desp)+'</div></div>'+
     '<div class="kpi-card"><div class="kpi-accent" style="background:var(--gold)"></div><div class="kpi-label">Registros</div><div class="kpi-value gold">'+lans.length+'</div></div>';
-  const sems={};lans.forEach(l=>{const dia=new Date(l.data+'T00:00:00').getDate();const s=dia<=7?1:dia<=14?2:dia<=21?3:4;if(!sems[s])sems[s]={r:0,d:0,lans:[]};if(l.tipo==='receita')sems[s].r+=l.valor;else sems[s].d+=l.valor;sems[s].lans.push(l)});
+  const sems={};
+  lans.forEach(l=>{
+    const d=new Date(l.data+'T00:00:00');
+    const dow=d.getDay();
+    const mon=new Date(d);mon.setDate(d.getDate()-(dow===0?6:dow-1));
+    const key=mon.toISOString().slice(0,10);
+    if(!sems[key])sems[key]={r:0,d:0,lans:[],monday:mon};
+    if(l.tipo==='receita')sems[key].r+=l.valor;else sems[key].d+=l.valor;
+    sems[key].lans.push(l);
+  });
   const el=document.getElementById('sem-semanas');el.innerHTML='';
   if(!Object.keys(sems).length){el.innerHTML='<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Sem lançamentos neste mês</div></div>';return}
-  const diasFim=[7,14,21,new Date(y,m+1,0).getDate()];
-  [1,2,3,4].forEach(s=>{if(!sems[s])return;const sv=sems[s];const saldo=sv.r-sv.d;
-    el.innerHTML+='<div><div class="week-label">Semana '+s+' — dias '+((s-1)*7+1)+' a '+diasFim[s-1]+'</div><div class="week-card"><div style="display:flex;gap:28px;margin-bottom:16px;flex-wrap:wrap"><div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Receita</div><div class="mono" style="font-size:18px;font-weight:600;color:var(--green)">'+fmt(sv.r)+'</div></div><div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Despesa</div><div class="mono" style="font-size:18px;font-weight:600;color:var(--red)">'+fmt(sv.d)+'</div></div><div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Saldo</div><span class="balance-chip '+(saldo>=0?'pos':'neg')+'">'+(saldo>=0?'+':'−')+fmt(Math.abs(saldo))+'</span></div><div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Registros</div><div style="font-size:18px;font-weight:700">'+sv.lans.length+'</div></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Quem</th><th>Valor</th></tr></thead><tbody>'+sv.lans.sort((a,b)=>new Date(a.data)-new Date(b.data)).map(l=>'<tr><td>'+new Date(l.data+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+'</td><td>'+l.desc+'</td><td><span class="badge navy">'+l.cat+'</span></td><td style="color:var(--text-muted)">'+l.quem+'</td><td class="mono" style="color:'+(l.tipo==='receita'?'var(--green)':'var(--red)')+';font-weight:600">'+(l.tipo==='receita'?'+':'−')+fmt(l.valor)+'</td></tr>').join('')+'</tbody></table></div></div></div>';
+  const fmtDay=dt=>dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  Object.keys(sems).sort().forEach((key,idx)=>{
+    const sv=sems[key];const saldo=sv.r-sv.d;
+    const sun=new Date(sv.monday);sun.setDate(sv.monday.getDate()+6);
+    const label='Semana '+(idx+1)+' — '+fmtDay(sv.monday)+' a '+fmtDay(sun);
+    el.innerHTML+='<div><div class="week-label">'+label+'</div><div class="week-card"><div style="display:flex;gap:28px;margin-bottom:16px;flex-wrap:wrap"><div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Receita</div><div class="mono" style="font-size:18px;font-weight:600;color:var(--green)">'+fmt(sv.r)+'</div></div><div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Despesa</div><div class="mono" style="font-size:18px;font-weight:600;color:var(--red)">'+fmt(sv.d)+'</div></div><div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Saldo</div><span class="balance-chip '+(saldo>=0?'pos':'neg')+'">'+(saldo>=0?'+':'−')+fmt(Math.abs(saldo))+'</span></div><div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Registros</div><div style="font-size:18px;font-weight:700">'+sv.lans.length+'</div></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Quem</th><th>Valor</th></tr></thead><tbody>'+sv.lans.sort((a,b)=>new Date(a.data)-new Date(b.data)).map(l=>'<tr><td>'+new Date(l.data+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+'</td><td>'+l.desc+'</td><td><span class="badge navy">'+l.cat+'</span></td><td style="color:var(--text-muted)">'+l.quem+'</td><td class="mono" style="color:'+(l.tipo==='receita'?'var(--green)':'var(--red)')+';font-weight:600">'+(l.tipo==='receita'?'+':'−')+fmt(l.valor)+'</td></tr>').join('')+'</tbody></table></div></div></div>';
   });
 }
 
 window.addEventListener('load',()=>{
-  load();autoLancar();applyAvatars();
+  load();migratePIN();autoLancar();applyAvatars();
   document.getElementById('lan-data').value=new Date().toISOString().split('T')[0];
   updateSelects();renderDashboard();
   document.getElementById('quick-modal').addEventListener('click',e=>{if(e.target.id==='quick-modal')closeQuickModal()});
@@ -1445,26 +1472,32 @@ function editCartao(id) {
 function calcScore(m, y) {
   const rec = recMes(m, y);
   const desp = despMes(m, y);
-  if (rec === 0) return { score: 0, label: 'Sem dados', cor: 'var(--text-dim)', dica: 'Registre suas receitas e despesas.' };
+  if (rec === 0) return { score: 0, label: 'Sem dados', cor: 'var(--text-dim)', dica: 'Registre suas receitas e despesas.', breakdown: [] };
   const saldo = rec - desp;
   const pctPoupado = saldo / rec;
   const metaA = S.metas.reduce((s, x) => s + x.aporte, 0);
   const atingiuMeta = metaA > 0 && saldo >= metaA;
+  const numLans = S.lancamentos.filter(l => { const d = new Date(l.data + 'T00:00:00'); return d.getMonth() === m && d.getFullYear() === y; }).length;
 
-  // Pontuação: 0-100
-  let pts = 0;
-  pts += Math.min(pctPoupado * 200, 40);          // até 40pts por poupar ≥ 20%
-  pts += desp <= rec ? 30 : Math.max(0, 30 + (1 - desp / rec) * 30); // até 30pts por não estourar
-  pts += atingiuMeta ? 20 : (metaA > 0 ? Math.min(saldo / metaA * 20, 18) : 10); // até 20pts por meta
-  pts += S.lancamentos.filter(l => { const d = new Date(l.data + 'T00:00:00'); return d.getMonth() === m && d.getFullYear() === y; }).length >= 5 ? 10 : 5; // até 10pts por disciplina de registro
+  const p1 = Math.min(pctPoupado * 200, 40);
+  const p2 = desp <= rec ? 30 : Math.max(0, 30 + (1 - desp / rec) * 30);
+  const p3 = atingiuMeta ? 20 : (metaA > 0 ? Math.min(saldo / metaA * 20, 18) : 10);
+  const p4 = numLans >= 5 ? 10 : 5;
 
-  const score = Math.min(Math.max(Math.round(pts), 0), 100);
+  const score = Math.min(Math.max(Math.round(p1 + p2 + p3 + p4), 0), 100);
   let label, cor, dica;
   if (score >= 85) { label = 'Excelente'; cor = 'var(--green)'; dica = 'Vocês estão no controle total. Continue assim!'; }
   else if (score >= 65) { label = 'Muito bom'; cor = '#2563EB'; dica = 'Finanças saudáveis. Pequenos ajustes podem levar ao topo.'; }
   else if (score >= 45) { label = 'Regular'; cor = 'var(--amber)'; dica = 'Atenção: gastos estão consumindo grande parte da renda.'; }
   else { label = 'Crítico'; cor = 'var(--red)'; dica = 'Gastos maiores que a renda. Revise urgentemente.'; }
-  return { score, label, cor, dica };
+
+  const breakdown = [
+    { label: 'Poupança', pts: Math.round(p1), max: 40, ok: p1 >= 32, hint: (pctPoupado * 100).toFixed(0) + '% da renda guardada' },
+    { label: 'Controle de gastos', pts: Math.round(p2), max: 30, ok: p2 >= 25, hint: desp <= rec ? 'Não estourou a renda ✓' : 'Gastou ' + (desp/rec*100).toFixed(0) + '% da renda' },
+    { label: 'Metas', pts: Math.round(p3), max: 20, ok: atingiuMeta, hint: metaA > 0 ? (atingiuMeta ? 'Meta atingida ✓' : fmt(saldo) + ' de ' + fmt(metaA) + ' necessários') : 'Sem meta de aporte' },
+    { label: 'Disciplina de registro', pts: Math.round(p4), max: 10, ok: p4 >= 10, hint: numLans + ' lançamentos no mês' },
+  ];
+  return { score, label, cor, dica, breakdown };
 }
 
 // ═══════════════════════════════════════════════════
@@ -1584,6 +1617,18 @@ renderDashboard = function() {
           </div>
         </div>
         <div style="margin-top:12px"><div class="progress-bar" style="height:6px"><div class="progress-fill" style="width:${score}%;background:${cor}"></div></div></div>
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:7px">
+          ${breakdown.map(b=>`<div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:13px">${b.ok?'✅':'⚠️'}</span>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px">
+                <span style="color:var(--text-muted)">${b.label}</span>
+                <span class="mono" style="color:${b.ok?'var(--green)':'var(--amber)'}">${b.pts}/${b.max}pts</span>
+              </div>
+              <div style="font-size:11px;color:var(--text-dim)">${b.hint}</div>
+            </div>
+          </div>`).join('')}
+        </div>
       </div>
       <div class="card" style="padding:20px">
         <div class="kpi-label">Patrimônio Acumulado em Metas</div>
@@ -1907,6 +1952,7 @@ const _handleEditSaveOrig = handleEditSave;
 handleEditSave = function() {
   _handleEditSaveOrig();
   showToast('Alterações salvas!');
+  renderDashboard();
 };
 
 // ═══════════════════════════════════════════════════
@@ -1916,8 +1962,17 @@ let _pinBuffer = '';
 let _pinMode = 'check'; // 'check' | 'setup' | 'confirm'
 let _pinSetupFirst = '';
 
+function hashPIN(p) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < p.length; i++) h = Math.imul(h ^ p.charCodeAt(i), 0x01000193) >>> 0;
+  return h.toString(36);
+}
 function getPIN() { return localStorage.getItem('noronha_pin') || ''; }
-function setPIN(p) { localStorage.setItem('noronha_pin', p); }
+function setPIN(p) { localStorage.setItem('noronha_pin', hashPIN(p)); }
+function migratePIN() {
+  const raw = localStorage.getItem('noronha_pin') || '';
+  if (raw && /^\d{4}$/.test(raw)) localStorage.setItem('noronha_pin', hashPIN(raw));
+}
 
 function showPinOverlay() {
   const overlay = document.getElementById('pin-overlay');
@@ -1957,7 +2012,7 @@ function pinKey(k) {
 function processPIN() {
   const err = document.getElementById('pin-error');
   if (_pinMode === 'check') {
-    if (_pinBuffer === getPIN()) { hidePinOverlay(); showToast('Bem-vindos! 👋'); }
+    if (hashPIN(_pinBuffer) === getPIN()) { hidePinOverlay(); showToast('Bem-vindos! 👋'); }
     else { err.textContent = 'PIN incorreto. Tente novamente.'; _pinBuffer = ''; updatePinDots(); }
   } else if (_pinMode === 'setup') {
     _pinSetupFirst = _pinBuffer; _pinBuffer = '';
@@ -2061,7 +2116,9 @@ renderLancamentos = function() {
   if (q)    lans = lans.filter(l => (l.desc||'').toLowerCase().includes(q)||(l.cat||'').toLowerCase().includes(q));
   lans.sort((a,b) => new Date(b.data) - new Date(a.data));
 
-  document.getElementById('lan-count').textContent = lans.length + ' lançamento' + (lans.length!==1?'s':'') + (from||to ? ' · período livre':'');
+  const _totRec2=lans.filter(l=>l.tipo==='receita').reduce((s,l)=>s+l.valor,0);
+  const _totDesp2=lans.filter(l=>l.tipo==='despesa').reduce((s,l)=>s+l.valor,0);
+  document.getElementById('lan-count').textContent = lans.length + ' lançamento' + (lans.length!==1?'s':'') + (from||to?' · período livre':'') + ' · ↑'+fmt(_totRec2)+' ↓'+fmt(_totDesp2);
   const tb = document.getElementById('lan-tbody'); tb.innerHTML='';
   if (!lans.length) { tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-icon">📝</div><div class="empty-text">Sem lançamentos neste período</div></div></td></tr>'; return; }
   lans.forEach(l => {
