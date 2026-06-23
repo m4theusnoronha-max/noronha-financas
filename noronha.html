@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanças Noronha</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      color: #38bdf8;
+    }
+    header p {
+      color: #94a3b8;
+      margin-top: 0.5rem;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 900px;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid #334155;
+    }
+    .card h2 {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .card .value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .card .value.negative { color: #f87171; }
+    .card .value.positive { color: #4ade80; }
+    footer {
+      margin-top: 3rem;
+      color: #475569;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Finanças Noronha</h1>
+    <p>Painel financeiro pessoal</p>
+  </header>
+
+  <div class="cards">
+    <div class="card">
+      <h2>Saldo Total</h2>
+      <div class="value positive">R$ 0,00</div>
+    </div>
+    <div class="card">
+      <h2>Receitas do Mês</h2>
+      <div class="value positive">R$ 0,00</div>
+    </div>
+    <div class="card">
+      <h2>Despesas do Mês</h2>
+      <div class="value negative">R$ 0,00</div>
+    </div>
+    <div class="card">
+      <h2>Investimentos</h2>
+      <div class="value">R$ 0,00</div>
+    </div>
+  </div>
+
+  <footer>Matheus Noronha &copy; 2026</footer>
+</body>
+</html>
