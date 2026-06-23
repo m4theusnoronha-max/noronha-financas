@@ -1596,7 +1596,7 @@ const _origRenderDashboard = renderDashboard;
 renderDashboard = function() {
   _origRenderDashboard();
   const m = cm(), y = cy();
-  const { score, label, cor, dica } = calcScore(m, y);
+  const { score, label, cor, dica, breakdown } = calcScore(m, y);
   const patrimonio = calcPatrimonio();
   const catAlerts = checkCategoryAlerts(m, y);
 
