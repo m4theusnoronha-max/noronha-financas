@@ -789,9 +789,50 @@ const MF=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto'
 const TC={'Fixo':'#1A1A2E','Variável':'#C9A84C','Lazer':'#2563EB','Poupança':'#1A7F5A'};
 const STOR='noronha_v2';
 
+// ── Supabase Sync ──────────────────────────────────────
+const _SB_URL='https://fyhicyxlayuilosadmtb.supabase.co';
+const _SB_KEY='sb_publishable_XyCoJQaiJ3pSjZoZeGIGWQ_b-D57CeW';
+const _SB_HDR={'apikey':_SB_KEY,'Authorization':'Bearer '+_SB_KEY,'Content-Type':'application/json'};
+let _sbOnline=false;
+
+async function _sbLoad(){
+  try{
+    const r=await fetch(_SB_URL+'/rest/v1/financas?id=eq.noronha_v2&select=data',{headers:_SB_HDR});
+    if(!r.ok)return false;
+    const rows=await r.json();
+    _sbOnline=true;
+    const cloud=rows.length?rows[0].data:null;
+    const cloudEmpty=!cloud||!cloud.lancamentos||cloud.lancamentos.length===0;
+    if(cloudEmpty){
+      // Nuvem vazia: sobe os dados locais (migração inicial)
+      await fetch(_SB_URL+'/rest/v1/financas?id=eq.noronha_v2',{
+        method:'PATCH',
+        headers:{..._SB_HDR,'Prefer':'return=minimal'},
+        body:JSON.stringify({data:S,updated_at:new Date().toISOString()})
+      });
+    }else{
+      S={...ds(),...cloud};
+      localStorage.setItem(STOR,JSON.stringify(S));
+    }
+    return true;
+  }catch(e){return false;}
+}
+
+async function _sbSave(){
+  if(!_sbOnline)return;
+  try{
+    await fetch(_SB_URL+'/rest/v1/financas?id=eq.noronha_v2',{
+      method:'PATCH',
+      headers:{..._SB_HDR,'Prefer':'return=minimal'},
+      body:JSON.stringify({data:S,updated_at:new Date().toISOString()})
+    });
+  }catch(e){}
+}
+// ───────────────────────────────────────────────────────
+
 function ds(){return{currentMonth:new Date().getMonth(),currentYear:new Date().getFullYear(),lastAutoMonth:null,avatars:{matheus:'',natalia:''},categorias:[],lancamentos:[],recorrentes:[],cartoes:[],metas:[],assinaturas:[],dividas:[],nextId:1}}
 let S=ds();
-function save(){try{localStorage.setItem(STOR,JSON.stringify(S))}catch(e){}}
+function save(){try{localStorage.setItem(STOR,JSON.stringify(S));_sbSave()}catch(e){}}
 function load(){try{const r=localStorage.getItem(STOR);if(r)S={...ds(),...JSON.parse(r)}}catch(e){S=ds()}}
 function exportData(){const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='noronha-'+new Date().toISOString().slice(0,10)+'.json';a.click()}
 function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{S={...ds(),...JSON.parse(ev.target.result)};save();applyAvatars();goTo('dashboard');alert('Dados importados!')}catch(err){alert('Arquivo inválido.')}};r.readAsText(f);e.target.value=''}
@@ -1363,11 +1404,15 @@ function renderSemanal(){
   });
 }
 
-window.addEventListener('load',()=>{
-  load();migratePIN();autoLancar();applyAvatars();
+window.addEventListener('load',async()=>{
+  load();
+  const loaded=await _sbLoad();
+  if(!loaded)_sbOnline=false;
+  migratePIN();autoLancar();applyAvatars();
   document.getElementById('lan-data').value=new Date().toISOString().split('T')[0];
   updateSelects();renderDashboard();
   document.getElementById('quick-modal').addEventListener('click',e=>{if(e.target.id==='quick-modal')closeQuickModal()});
+  if(!loaded)showToast('Modo offline — dados locais','info');
 });
 
 
