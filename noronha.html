@@ -2,8 +2,15 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Casal Noronha · Finanças</title>
+<link rel="manifest" href="/noronha-financas/manifest.json">
+<meta name="theme-color" content="#1A1A2E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Noronha $">
+<link rel="apple-touch-icon" href="/noronha-financas/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -1579,6 +1586,10 @@ function renderSemanal(){
 }
 
 window.addEventListener('load',async()=>{
+  // Registra Service Worker (PWA)
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/noronha-financas/sw.js').catch(()=>{});
+  }
   load();
   const loaded=await _sbLoad();
   if(!loaded)_sbOnline=false;
