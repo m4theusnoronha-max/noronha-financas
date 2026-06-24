@@ -12,55 +12,58 @@
 <meta name="apple-mobile-web-app-title" content="Noronha $">
 <link rel="apple-touch-icon" href="/noronha-financas/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 <style>
 :root {
-  --bg:#F7F7F5;--white:#FFFFFF;--surface:#FFFFFF;--surface2:#F2F2F0;
-  --border:#E8E8E4;--border-light:#F0F0ED;
-  --navy:#1A1A2E;--navy-light:#2D2D4A;
-  --gold:#C9A84C;--gold-light:#F5EDD6;--gold-pale:#FBF7EC;
-  --text:#1C1C1E;--text-mid:#6B6B6B;--text-muted:#9A9A9A;--text-dim:#C5C5C5;
-  --green:#1A7F5A;--green-bg:#EBF7F2;
-  --red:#C0392B;--red-bg:#FDEDEB;
-  --blue:#2563EB;--blue-bg:#EFF4FF;
-  --amber:#B45309;--amber-bg:#FEF3C7;
-  --radius:16px;--radius-sm:10px;--radius-xs:6px;
-  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --shadow:0 4px 16px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04);
-  --shadow-lg:0 12px 40px rgba(0,0,0,.12),0 4px 12px rgba(0,0,0,.06);
-  --transition:all .2s cubic-bezier(.4,0,.2,1);
+  --bg:#F5F5F3;--white:#FFFFFF;--surface:#FFFFFF;--surface2:#EFEFED;
+  --border:#E4E4E0;--border-light:#EBEBЕ7;
+  --navy:#16182A;--navy-light:#272944;--navy-muted:rgba(22,24,42,.06);
+  --gold:#B8973C;--gold-light:#F3E8CC;--gold-pale:#FAF4E5;
+  --text:#111118;--text-mid:#5A5A6A;--text-muted:#94949E;--text-dim:#C0C0C8;
+  --green:#0F6E4A;--green-bg:#E8F5EF;
+  --red:#B83232;--red-bg:#FCEAEA;
+  --blue:#1D4ED8;--blue-bg:#EEF2FF;
+  --amber:#A0550A;--amber-bg:#FEF4E4;
+  --radius:14px;--radius-sm:9px;--radius-xs:5px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow:0 3px 12px rgba(0,0,0,.07);
+  --shadow-lg:0 10px 36px rgba(0,0,0,.13),0 3px 10px rgba(0,0,0,.06);
+  --transition:all .18s cubic-bezier(.4,0,.2,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
-.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
 
 /* SIDEBAR */
-.sidebar{background:var(--navy);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
-.sidebar-header{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
-.brand-name{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:#fff;letter-spacing:-.2px;line-height:1.2}
-.brand-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px;letter-spacing:.04em;text-transform:uppercase}
-.profiles{display:flex;gap:10px;margin-top:16px}
-.profile-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;cursor:pointer}
-.profile-avatar{width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,.15);overflow:hidden;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:16px;color:rgba(255,255,255,.5);cursor:pointer;transition:var(--transition)}
+.sidebar{background:var(--navy);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;scrollbar-width:none}
+.sidebar::-webkit-scrollbar{display:none}
+.sidebar-header{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,.06)}
+.brand-name{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.2px;line-height:1.2}
+.brand-sub{font-size:10px;color:rgba(255,255,255,.3);margin-top:2px;letter-spacing:.06em;text-transform:uppercase}
+.profiles{display:flex;gap:8px;margin-top:14px}
+.profile-item{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;cursor:pointer}
+.profile-avatar{width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(255,255,255,.12);overflow:hidden;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:rgba(255,255,255,.45);cursor:pointer;transition:var(--transition)}
 .profile-avatar img{width:100%;height:100%;object-fit:cover}
 .profile-avatar:hover,.profile-avatar.has-photo{border-color:var(--gold)}
-.profile-name{font-size:11px;color:rgba(255,255,255,.45);font-weight:500}
-.upload-hint{font-size:9px;color:rgba(255,255,255,.2);text-align:center}
-.nav-section{padding:16px 12px 4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.25)}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:1px 8px;cursor:pointer;border-radius:10px;transition:var(--transition);color:rgba(255,255,255,.5);font-size:13px;font-weight:500;user-select:none}
-.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
-.nav-item.active{background:rgba(201,168,76,.15);color:var(--gold)}
-.nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
-.sidebar-footer{margin-top:auto;padding:16px 12px;border-top:1px solid rgba(255,255,255,.08)}
-.sidebar-footer .nav-item{color:rgba(255,255,255,.3);font-size:12px}
+.profile-name{font-size:10px;color:rgba(255,255,255,.38);font-weight:500}
+.upload-hint{font-size:9px;color:rgba(255,255,255,.18);text-align:center}
+.nav-section{padding:18px 16px 5px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.2)}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;margin:1px 8px;cursor:pointer;border-radius:8px;transition:var(--transition);color:rgba(255,255,255,.42);font-size:12.5px;font-weight:500;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.8)}
+.nav-item.active{background:rgba(184,151,60,.13);color:var(--gold)}
+.nav-icon{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.nav-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-footer{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.06)}
+.sidebar-footer .nav-item{color:rgba(255,255,255,.28);font-size:12px}
 
 /* MAIN */
 .main{padding:32px 36px;overflow-y:auto}
 .page{display:none}.page.active{display:block}
 .page-header{margin-bottom:26px}
-.page-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;letter-spacing:-.4px;color:var(--text);line-height:1.2}
-.page-subtitle{font-size:13px;color:var(--text-muted);margin-top:5px}
+.page-title{font-size:24px;font-weight:700;letter-spacing:-.5px;color:var(--text);line-height:1.2}
+.page-subtitle{font-size:13px;color:var(--text-muted);margin-top:4px}
 
 /* MONTH SELECTOR */
 .month-selector{display:flex;align-items:center;gap:6px;margin-bottom:22px;flex-wrap:wrap}
@@ -69,20 +72,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .month-btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
 
 /* KPI */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px}
-.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm);transition:var(--transition);position:relative;overflow:hidden}
-.kpi-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
-.kpi-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
-.kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px}
-.kpi-value{font-family:'DM Mono',monospace;font-size:21px;font-weight:500;letter-spacing:-.5px;color:var(--text)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;transition:var(--transition);position:relative;overflow:hidden}
+.kpi-card:hover{border-color:var(--navy-muted);box-shadow:var(--shadow)}
+.kpi-accent{position:absolute;top:0;left:0;bottom:0;width:3px;border-radius:var(--radius) 0 0 var(--radius)}
+.kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:10px;padding-left:10px}
+.kpi-value{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;letter-spacing:-.5px;color:var(--text);padding-left:10px}
 .kpi-value.green{color:var(--green)}.kpi-value.red{color:var(--red)}.kpi-value.gold{color:var(--gold)}.kpi-value.navy{color:var(--navy)}.kpi-value.blue{color:var(--blue)}
-.kpi-delta{font-size:11px;margin-top:6px;color:var(--text-muted)}
+.kpi-delta{font-size:11px;margin-top:5px;color:var(--text-muted);padding-left:10px}
 
 /* CARDS */
-.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm)}
-.mb{margin-bottom:18px}
-.card-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.card-title-sub{font-size:12px;color:var(--text-muted);font-weight:400}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px}
+.mb{margin-bottom:16px}
+.card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:8px;letter-spacing:-.1px}
+.card-title-sub{font-size:11.5px;color:var(--text-muted);font-weight:400}
 
 /* GRID */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
@@ -118,13 +121,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .form-select option{background:var(--white)}
 
 /* BUTTONS */
-.btn{padding:10px 20px;border-radius:var(--radius-sm);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:var(--transition);display:inline-flex;align-items:center;gap:7px}
+.btn{padding:9px 18px;border-radius:var(--radius-sm);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:var(--transition);display:inline-flex;align-items:center;gap:6px;letter-spacing:-.1px}
 .btn-primary{background:var(--navy);color:#fff}.btn-primary:hover{background:var(--navy-light)}
-.btn-gold{background:var(--gold);color:#fff}.btn-gold:hover{background:#B8943E}
-.btn-success{background:var(--green);color:#fff}.btn-success:hover{background:#166347}
-.btn-danger{background:transparent;color:var(--red);border:1.5px solid #ECC9C5}.btn-danger:hover{background:var(--red-bg)}
-.btn-ghost{background:transparent;color:var(--text-mid);border:1.5px solid var(--border)}.btn-ghost:hover{color:var(--text);border-color:var(--text-muted)}
-.btn-sm{padding:6px 13px;font-size:12px;border-radius:8px}
+.btn-gold{background:var(--gold);color:#fff}.btn-gold:hover{opacity:.9}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover{opacity:.9}
+.btn-danger{background:transparent;color:var(--red);border:1px solid #E8C0C0}.btn-danger:hover{background:var(--red-bg)}
+.btn-ghost{background:transparent;color:var(--text-mid);border:1px solid var(--border)}.btn-ghost:hover{color:var(--text);border-color:var(--text-muted);background:var(--bg)}
+.btn-sm{padding:5px 12px;font-size:11.5px;border-radius:7px}
 
 /* PROGRESS */
 .progress-bar{background:var(--border);border-radius:4px;height:5px;overflow:hidden}
@@ -189,23 +192,23 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .search-input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(26,26,46,.06)}
 
 /* HERO BAND */
-.hero-band{background:linear-gradient(135deg,var(--navy) 0%,#252548 100%);border-radius:20px;padding:28px 32px;margin-bottom:22px;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
-.hero-band::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.18) 0%,transparent 70%)}
-.hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;position:relative;z-index:1}
-.hero-couple{display:flex;align-items:center;gap:14px}
-.hero-avatar{width:52px;height:52px;border-radius:50%;border:2.5px solid rgba(201,168,76,.5);overflow:hidden;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:20px;color:rgba(255,255,255,.5);cursor:pointer;transition:var(--transition)}
+.hero-band{background:var(--navy);border-radius:16px;padding:26px 28px;margin-bottom:20px;position:relative;overflow:hidden}
+.hero-band::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(184,151,60,.14) 0%,transparent 65%)}
+.hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;position:relative;z-index:1}
+.hero-couple{display:flex;align-items:center;gap:12px}
+.hero-avatar{width:46px;height:46px;border-radius:50%;border:1.5px solid rgba(184,151,60,.45);overflow:hidden;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:rgba(255,255,255,.45);cursor:pointer;transition:var(--transition)}
 .hero-avatar img{width:100%;height:100%;object-fit:cover}
 .hero-avatar:hover{border-color:var(--gold)}
-.hero-avatar-label{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;text-align:center}
-.hero-greeting{font-size:12px;color:rgba(255,255,255,.45);letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px}
-.hero-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-.2px}
-.hero-month{font-size:12px;color:rgba(201,168,76,.8);margin-top:2px}
+.hero-avatar-label{font-size:10px;color:rgba(255,255,255,.35);margin-top:4px;text-align:center}
+.hero-greeting{font-size:10.5px;color:rgba(255,255,255,.38);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.hero-title{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.hero-month{font-size:11px;color:rgba(184,151,60,.75);margin-top:2px}
 .hero-numbers{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;z-index:1}
-.hero-num{padding:0 24px;border-left:1px solid rgba(255,255,255,.1)}
+.hero-num{padding:0 20px;border-left:1px solid rgba(255,255,255,.08)}
 .hero-num:first-child{padding-left:0;border:none}
-.hero-num-label{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
-.hero-num-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:#fff;letter-spacing:-.3px}
-.hero-num-val.gold{color:var(--gold)}.hero-num-val.green{color:#5EDDB0}.hero-num-val.red{color:#F98B7F}
+.hero-num-label{font-size:9.5px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.hero-num-val{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:#fff;letter-spacing:-.3px}
+.hero-num-val.gold{color:var(--gold)}.hero-num-val.green{color:#4DD4A0}.hero-num-val.red{color:#F07070}
 
 /* FAB */
 .fab-wrap{position:fixed;bottom:32px;right:32px;z-index:1000;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
@@ -253,34 +256,37 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .sep{height:1px;background:var(--border);margin:18px 0}
 
 /* ── Mobile header ── */
-.mobile-header{display:none;position:fixed;top:0;left:0;right:0;z-index:600;height:56px;background:var(--navy);align-items:center;padding:0 16px;gap:12px;border-bottom:1px solid rgba(255,255,255,.08)}
-.mh-burger{width:36px;height:36px;display:flex;flex-direction:column;justify-content:center;gap:5px;cursor:pointer;flex-shrink:0}
-.mh-burger span{display:block;height:2px;background:rgba(255,255,255,.7);border-radius:2px;transition:var(--transition)}
-.mh-title{flex:1;font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:#fff}
-.mh-avatars{display:flex;gap:8px;align-items:center}
-.mh-av{width:32px;height:32px;border-radius:50%;overflow:hidden;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;background:rgba(255,255,255,.15);flex-shrink:0;cursor:pointer}
+.mobile-header{display:none;position:fixed;top:0;left:0;right:0;z-index:600;height:54px;background:var(--navy);align-items:center;padding:0 16px;gap:12px;border-bottom:1px solid rgba(255,255,255,.06)}
+.mh-burger{width:34px;height:34px;display:flex;flex-direction:column;justify-content:center;gap:5px;cursor:pointer;flex-shrink:0}
+.mh-burger span{display:block;height:1.5px;background:rgba(255,255,255,.65);border-radius:2px;transition:var(--transition)}
+.mh-title{flex:1;font-size:16px;font-weight:700;color:#fff;letter-spacing:-.2px}
+.mh-avatars{display:flex;gap:7px;align-items:center}
+.mh-av{width:30px;height:30px;border-radius:50%;overflow:hidden;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;background:rgba(255,255,255,.12);flex-shrink:0;cursor:pointer}
 .mh-av img{width:100%;height:100%;object-fit:cover}
 
 /* ── Drawer (mobile) ── */
-.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:700;opacity:0;transition:opacity .25s}
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:700;opacity:0;transition:opacity .22s}
 .drawer-overlay.open{opacity:1}
-.drawer{position:fixed;top:0;left:0;bottom:0;width:280px;background:var(--navy);z-index:800;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;display:flex;flex-direction:column}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:272px;background:var(--navy);z-index:800;transform:translateX(-100%);transition:transform .26s cubic-bezier(.4,0,.2,1);overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:none}
+.drawer::-webkit-scrollbar{display:none}
 .drawer.open{transform:translateX(0)}
-.drawer-head{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px}
-.drawer-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.7);font-size:18px;flex-shrink:0;margin-left:auto}
-.drawer-profiles{display:flex;gap:16px;padding:16px}
-.drawer-nav{flex:1;padding:8px 0}
-.drawer-section{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.3);padding:14px 16px 4px;font-weight:600}
-.drawer-item{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;color:rgba(255,255,255,.55);font-size:14px;font-weight:500;transition:var(--transition)}
-.drawer-item:hover,.drawer-item.active{background:rgba(201,168,76,.12);color:var(--gold)}
-.drawer-item .nav-icon{font-size:18px;width:24px;text-align:center}
-.drawer-footer{padding:12px 0;border-top:1px solid rgba(255,255,255,.08)}
-.drawer-footer .drawer-item{font-size:13px;color:rgba(255,255,255,.35)}
+.drawer-head{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px}
+.drawer-close{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.6);font-size:16px;flex-shrink:0;margin-left:auto}
+.drawer-profiles{display:flex;gap:16px;padding:14px 16px}
+.drawer-nav{flex:1;padding:6px 0}
+.drawer-section{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.22);padding:14px 16px 4px;font-weight:700}
+.drawer-item{display:flex;align-items:center;gap:11px;padding:10px 14px;cursor:pointer;color:rgba(255,255,255,.48);font-size:13.5px;font-weight:500;transition:var(--transition)}
+.drawer-item:hover,.drawer-item.active{background:rgba(184,151,60,.1);color:var(--gold)}
+.drawer-item .nav-icon{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.drawer-item .nav-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.drawer-footer{padding:10px 0;border-top:1px solid rgba(255,255,255,.06)}
+.drawer-footer .drawer-item{font-size:13px;color:rgba(255,255,255,.32)}
 
 /* ── Bottom tab bar ── */
-.bottom-tabs{display:none;position:fixed;bottom:0;left:0;right:0;z-index:600;background:var(--navy);border-top:1px solid rgba(255,255,255,.08);height:60px;align-items:stretch}
-.btab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:rgba(255,255,255,.4);transition:var(--transition);font-size:10px;font-weight:500;padding:4px 0}
-.btab .btab-icon{font-size:20px;line-height:1}
+.bottom-tabs{display:none;position:fixed;bottom:0;left:0;right:0;z-index:600;background:var(--navy);border-top:1px solid rgba(255,255,255,.07);height:58px;align-items:stretch}
+.btab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:rgba(255,255,255,.36);transition:var(--transition);font-size:9.5px;font-weight:500;padding:4px 0}
+.btab-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+.btab-icon svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
 .btab.active{color:var(--gold)}
 
 @media(max-width:860px){
@@ -392,42 +398,42 @@ body.readonly .card-title::after{content:' 👁 leitura';font-size:11px;color:va
   </div>
   <div class="drawer-nav">
     <div class="drawer-section">Principal</div>
-    <div class="drawer-item active" id="dr-dashboard" onclick="goTo('dashboard');closeDrawer()"><span class="nav-icon">📊</span>Dashboard</div>
-    <div class="drawer-item" id="dr-lancamentos" onclick="goTo('lancamentos');closeDrawer()"><span class="nav-icon">📝</span>Lançamentos</div>
-    <div class="drawer-item" id="dr-orcamento" onclick="goTo('orcamento');closeDrawer()"><span class="nav-icon">📋</span>Orçamento</div>
+    <div class="drawer-item active" id="dr-dashboard" onclick="goTo('dashboard');closeDrawer()"><span class="nav-icon"><i data-lucide="layout-dashboard"></i></span>Dashboard</div>
+    <div class="drawer-item" id="dr-lancamentos" onclick="goTo('lancamentos');closeDrawer()"><span class="nav-icon"><i data-lucide="receipt"></i></span>Lançamentos</div>
+    <div class="drawer-item" id="dr-orcamento" onclick="goTo('orcamento');closeDrawer()"><span class="nav-icon"><i data-lucide="pie-chart"></i></span>Orçamento</div>
     <div class="drawer-section">Cartões &amp; Fixos</div>
-    <div class="drawer-item" id="dr-cartoes" onclick="goTo('cartoes');closeDrawer()"><span class="nav-icon">💳</span>Cartões de Crédito</div>
-    <div class="drawer-item" id="dr-recorrentes" onclick="goTo('recorrentes');closeDrawer()"><span class="nav-icon">🔁</span>Recorrentes</div>
-    <div class="drawer-item" id="dr-assinaturas" onclick="goTo('assinaturas');closeDrawer()"><span class="nav-icon">🔄</span>Assinaturas</div>
+    <div class="drawer-item" id="dr-cartoes" onclick="goTo('cartoes');closeDrawer()"><span class="nav-icon"><i data-lucide="credit-card"></i></span>Cartões de Crédito</div>
+    <div class="drawer-item" id="dr-recorrentes" onclick="goTo('recorrentes');closeDrawer()"><span class="nav-icon"><i data-lucide="repeat"></i></span>Recorrentes</div>
+    <div class="drawer-item" id="dr-assinaturas" onclick="goTo('assinaturas');closeDrawer()"><span class="nav-icon"><i data-lucide="radio"></i></span>Assinaturas</div>
     <div class="drawer-section">Planejamento</div>
-    <div class="drawer-item" id="dr-fluxo" onclick="goTo('fluxo');closeDrawer()"><span class="nav-icon">🔮</span>Fluxo de Caixa</div>
-    <div class="drawer-item" id="dr-metas" onclick="goTo('metas');closeDrawer()"><span class="nav-icon">🎯</span>Metas</div>
-    <div class="drawer-item" id="dr-dividas" onclick="goTo('dividas');closeDrawer()"><span class="nav-icon">🧩</span>Bola de Neve</div>
+    <div class="drawer-item" id="dr-fluxo" onclick="goTo('fluxo');closeDrawer()"><span class="nav-icon"><i data-lucide="trending-up"></i></span>Fluxo de Caixa</div>
+    <div class="drawer-item" id="dr-metas" onclick="goTo('metas');closeDrawer()"><span class="nav-icon"><i data-lucide="target"></i></span>Metas</div>
+    <div class="drawer-item" id="dr-dividas" onclick="goTo('dividas');closeDrawer()"><span class="nav-icon"><i data-lucide="layers"></i></span>Bola de Neve</div>
     <div class="drawer-section">Ferramentas</div>
-    <div class="drawer-item" id="dr-simulador" onclick="goTo('simulador');closeDrawer()"><span class="nav-icon">🧮</span>Simulador</div>
-    <div class="drawer-item" id="dr-comparativo" onclick="goTo('comparativo');closeDrawer()"><span class="nav-icon">⚖️</span>Comparativo</div>
+    <div class="drawer-item" id="dr-simulador" onclick="goTo('simulador');closeDrawer()"><span class="nav-icon"><i data-lucide="calculator"></i></span>Simulador</div>
+    <div class="drawer-item" id="dr-comparativo" onclick="goTo('comparativo');closeDrawer()"><span class="nav-icon"><i data-lucide="bar-chart-2"></i></span>Comparativo</div>
     <div class="drawer-section">Relatórios</div>
-    <div class="drawer-item" id="dr-historico" onclick="goTo('historico');closeDrawer()"><span class="nav-icon">📈</span>Histórico</div>
-    <div class="drawer-item" id="dr-semanal" onclick="goTo('semanal');closeDrawer()"><span class="nav-icon">📅</span>Resumo Semanal</div>
-    <div class="drawer-item" id="dr-ajuda" onclick="goTo('ajuda');closeDrawer()"><span class="nav-icon">❓</span>Ajuda &amp; Tutorial</div>
+    <div class="drawer-item" id="dr-historico" onclick="goTo('historico');closeDrawer()"><span class="nav-icon"><i data-lucide="line-chart"></i></span>Histórico</div>
+    <div class="drawer-item" id="dr-semanal" onclick="goTo('semanal');closeDrawer()"><span class="nav-icon"><i data-lucide="calendar"></i></span>Resumo Semanal</div>
+    <div class="drawer-item" id="dr-ajuda" onclick="goTo('ajuda');closeDrawer()"><span class="nav-icon"><i data-lucide="help-circle"></i></span>Ajuda &amp; Tutorial</div>
   </div>
   <div class="drawer-footer">
-    <div class="drawer-item" onclick="openPinSettings();closeDrawer()"><span class="nav-icon">🔒</span>PIN de Acesso</div>
-    <div class="drawer-item" id="dr-notif-btn" onclick="ativarNotificacoes()"><span class="nav-icon">🔔</span>Ativar Notificações</div>
-    <div class="drawer-item" onclick="toggleReadOnly();closeDrawer()"><span class="nav-icon">👁</span>Modo Leitura</div>
-    <div class="drawer-item" onclick="exportCSV();closeDrawer()"><span class="nav-icon">📊</span>Exportar CSV</div>
-    <div class="drawer-item" onclick="exportData();closeDrawer()"><span class="nav-icon">💾</span>Exportar Backup</div>
-    <div class="drawer-item" onclick="document.getElementById('imp-file').click();closeDrawer()"><span class="nav-icon">📂</span>Importar Dados</div>
+    <div class="drawer-item" onclick="openPinSettings();closeDrawer()"><span class="nav-icon"><i data-lucide="lock"></i></span>PIN de Acesso</div>
+    <div class="drawer-item" id="dr-notif-btn" onclick="ativarNotificacoes()"><span class="nav-icon"><i data-lucide="bell"></i></span>Ativar Notificações</div>
+    <div class="drawer-item" onclick="toggleReadOnly();closeDrawer()"><span class="nav-icon"><i data-lucide="eye"></i></span>Modo Leitura</div>
+    <div class="drawer-item" onclick="exportCSV();closeDrawer()"><span class="nav-icon"><i data-lucide="download"></i></span>Exportar CSV</div>
+    <div class="drawer-item" onclick="exportData();closeDrawer()"><span class="nav-icon"><i data-lucide="hard-drive"></i></span>Exportar Backup</div>
+    <div class="drawer-item" onclick="document.getElementById('imp-file').click();closeDrawer()"><span class="nav-icon"><i data-lucide="upload"></i></span>Importar Dados</div>
   </div>
 </div>
 
 <!-- BOTTOM TABS -->
 <nav class="bottom-tabs">
-  <div class="btab active" id="bt-dashboard" onclick="goTo('dashboard')"><span class="btab-icon">📊</span>Início</div>
-  <div class="btab" id="bt-lancamentos" onclick="goTo('lancamentos')"><span class="btab-icon">📝</span>Gastos</div>
-  <div class="btab" id="bt-cartoes" onclick="goTo('cartoes')"><span class="btab-icon">💳</span>Cartões</div>
-  <div class="btab" id="bt-metas" onclick="goTo('metas')"><span class="btab-icon">🎯</span>Metas</div>
-  <div class="btab" id="bt-more" onclick="toggleDrawer()"><span class="btab-icon">☰</span>Menu</div>
+  <div class="btab active" id="bt-dashboard" onclick="goTo('dashboard')"><span class="btab-icon"><i data-lucide="layout-dashboard"></i></span>Início</div>
+  <div class="btab" id="bt-lancamentos" onclick="goTo('lancamentos')"><span class="btab-icon"><i data-lucide="receipt"></i></span>Gastos</div>
+  <div class="btab" id="bt-cartoes" onclick="goTo('cartoes')"><span class="btab-icon"><i data-lucide="credit-card"></i></span>Cartões</div>
+  <div class="btab" id="bt-metas" onclick="goTo('metas')"><span class="btab-icon"><i data-lucide="target"></i></span>Metas</div>
+  <div class="btab" id="bt-more" onclick="toggleDrawer()"><span class="btab-icon"><i data-lucide="menu"></i></span>Menu</div>
 </nav>
 
 <nav class="sidebar">
@@ -452,31 +458,31 @@ body.readonly .card-title::after{content:' 👁 leitura';font-size:11px;color:va
     </div>
   </div>
   <div class="nav-section">Principal</div>
-  <div class="nav-item active" onclick="goTo('dashboard')"><span class="nav-icon">📊</span>Dashboard</div>
-  <div class="nav-item" onclick="goTo('lancamentos')"><span class="nav-icon">📝</span>Lançamentos</div>
-  <div class="nav-item" onclick="goTo('orcamento')"><span class="nav-icon">📋</span>Orçamento</div>
+  <div class="nav-item active" onclick="goTo('dashboard')"><span class="nav-icon"><i data-lucide="layout-dashboard"></i></span>Dashboard</div>
+  <div class="nav-item" onclick="goTo('lancamentos')"><span class="nav-icon"><i data-lucide="receipt"></i></span>Lançamentos</div>
+  <div class="nav-item" onclick="goTo('orcamento')"><span class="nav-icon"><i data-lucide="pie-chart"></i></span>Orçamento</div>
   <div class="nav-section">Cartões &amp; Fixos</div>
-  <div class="nav-item" onclick="goTo('cartoes')"><span class="nav-icon">💳</span>Cartões de Crédito</div>
-  <div class="nav-item" onclick="goTo('recorrentes')"><span class="nav-icon">🔁</span>Recorrentes</div>
-  <div class="nav-item" onclick="goTo('assinaturas')"><span class="nav-icon">🔄</span>Assinaturas</div>
+  <div class="nav-item" onclick="goTo('cartoes')"><span class="nav-icon"><i data-lucide="credit-card"></i></span>Cartões de Crédito</div>
+  <div class="nav-item" onclick="goTo('recorrentes')"><span class="nav-icon"><i data-lucide="repeat"></i></span>Recorrentes</div>
+  <div class="nav-item" onclick="goTo('assinaturas')"><span class="nav-icon"><i data-lucide="radio"></i></span>Assinaturas</div>
   <div class="nav-section">Planejamento</div>
-  <div class="nav-item" onclick="goTo('fluxo')"><span class="nav-icon">🔮</span>Fluxo de Caixa</div>
-  <div class="nav-item" onclick="goTo('metas')"><span class="nav-icon">🎯</span>Metas</div>
-  <div class="nav-item" onclick="goTo('dividas')"><span class="nav-icon">🧩</span>Bola de Neve</div>
+  <div class="nav-item" onclick="goTo('fluxo')"><span class="nav-icon"><i data-lucide="trending-up"></i></span>Fluxo de Caixa</div>
+  <div class="nav-item" onclick="goTo('metas')"><span class="nav-icon"><i data-lucide="target"></i></span>Metas</div>
+  <div class="nav-item" onclick="goTo('dividas')"><span class="nav-icon"><i data-lucide="layers"></i></span>Bola de Neve</div>
   <div class="nav-section">Ferramentas</div>
-  <div class="nav-item" onclick="goTo('simulador')"><span class="nav-icon">🧮</span>Simulador</div>
-  <div class="nav-item" onclick="goTo('comparativo')"><span class="nav-icon">⚖️</span>Comparativo</div>
+  <div class="nav-item" onclick="goTo('simulador')"><span class="nav-icon"><i data-lucide="calculator"></i></span>Simulador</div>
+  <div class="nav-item" onclick="goTo('comparativo')"><span class="nav-icon"><i data-lucide="bar-chart-2"></i></span>Comparativo</div>
   <div class="nav-section">Relatórios</div>
-  <div class="nav-item" onclick="goTo('historico')"><span class="nav-icon">📈</span>Histórico</div>
-  <div class="nav-item" onclick="goTo('semanal')"><span class="nav-icon">📅</span>Resumo Semanal</div>
-  <div class="nav-item" onclick="goTo('ajuda')"><span class="nav-icon">❓</span>Ajuda &amp; Tutorial</div>
+  <div class="nav-item" onclick="goTo('historico')"><span class="nav-icon"><i data-lucide="line-chart"></i></span>Histórico</div>
+  <div class="nav-item" onclick="goTo('semanal')"><span class="nav-icon"><i data-lucide="calendar"></i></span>Resumo Semanal</div>
+  <div class="nav-item" onclick="goTo('ajuda')"><span class="nav-icon"><i data-lucide="help-circle"></i></span>Ajuda &amp; Tutorial</div>
   <div class="sidebar-footer">
-    <div class="nav-item" onclick="openPinSettings()"><span class="nav-icon">🔒</span>PIN de Acesso</div>
-    <div class="nav-item" onclick="ativarNotificacoes()" id="notif-btn"><span class="nav-icon">🔔</span>Ativar Notificações</div>
-    <div class="nav-item" onclick="toggleReadOnly()" id="readonly-btn"><span class="nav-icon">👁</span>Modo Leitura</div>
-    <div class="nav-item" onclick="exportCSV()"><span class="nav-icon">📊</span>Exportar CSV</div>
-    <div class="nav-item" onclick="exportData()"><span class="nav-icon">💾</span>Exportar Backup</div>
-    <div class="nav-item" onclick="document.getElementById('imp-file').click()"><span class="nav-icon">📂</span>Importar Dados</div>
+    <div class="nav-item" onclick="openPinSettings()"><span class="nav-icon"><i data-lucide="lock"></i></span>PIN de Acesso</div>
+    <div class="nav-item" onclick="ativarNotificacoes()" id="notif-btn"><span class="nav-icon"><i data-lucide="bell"></i></span>Ativar Notificações</div>
+    <div class="nav-item" onclick="toggleReadOnly()" id="readonly-btn"><span class="nav-icon"><i data-lucide="eye"></i></span>Modo Leitura</div>
+    <div class="nav-item" onclick="exportCSV()"><span class="nav-icon"><i data-lucide="download"></i></span>Exportar CSV</div>
+    <div class="nav-item" onclick="exportData()"><span class="nav-icon"><i data-lucide="hard-drive"></i></span>Exportar Backup</div>
+    <div class="nav-item" onclick="document.getElementById('imp-file').click()"><span class="nav-icon"><i data-lucide="upload"></i></span>Importar Dados</div>
     <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importData(event)">
   </div>
 </nav>
@@ -1827,6 +1833,7 @@ window.addEventListener('load',async()=>{
   const loaded=await _sbLoad();
   if(!loaded)_sbOnline=false;
   migratePIN();autoLancar();applyAvatars();injectDefaultCats();
+  if(window.lucide)lucide.createIcons();
   document.getElementById('lan-data').value=new Date().toISOString().split('T')[0];
   updateSelects();renderDashboard();
   document.getElementById('quick-modal').addEventListener('click',e=>{if(e.target.id==='quick-modal')closeQuickModal()});
