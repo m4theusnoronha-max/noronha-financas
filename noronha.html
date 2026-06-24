@@ -265,8 +265,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .mh-av img{width:100%;height:100%;object-fit:cover}
 
 /* ── Drawer (mobile) ── */
-.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:700;opacity:0;transition:opacity .22s}
-.drawer-overlay.open{opacity:1}
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:700;opacity:0;transition:opacity .22s;pointer-events:none}
+.drawer-overlay.open{opacity:1;pointer-events:auto}
 .drawer{position:fixed;top:0;left:0;bottom:0;width:272px;background:var(--navy);z-index:800;transform:translateX(-100%);transition:transform .26s cubic-bezier(.4,0,.2,1);overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:none}
 .drawer::-webkit-scrollbar{display:none}
 .drawer.open{transform:translateX(0)}
