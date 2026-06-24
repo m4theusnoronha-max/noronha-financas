@@ -409,6 +409,7 @@ body.readonly .card-title::after{content:' 👁 leitura';font-size:11px;color:va
     <div class="drawer-section">Relatórios</div>
     <div class="drawer-item" id="dr-historico" onclick="goTo('historico');closeDrawer()"><span class="nav-icon">📈</span>Histórico</div>
     <div class="drawer-item" id="dr-semanal" onclick="goTo('semanal');closeDrawer()"><span class="nav-icon">📅</span>Resumo Semanal</div>
+    <div class="drawer-item" id="dr-ajuda" onclick="goTo('ajuda');closeDrawer()"><span class="nav-icon">❓</span>Ajuda &amp; Tutorial</div>
   </div>
   <div class="drawer-footer">
     <div class="drawer-item" onclick="openPinSettings();closeDrawer()"><span class="nav-icon">🔒</span>PIN de Acesso</div>
@@ -468,6 +469,7 @@ body.readonly .card-title::after{content:' 👁 leitura';font-size:11px;color:va
   <div class="nav-section">Relatórios</div>
   <div class="nav-item" onclick="goTo('historico')"><span class="nav-icon">📈</span>Histórico</div>
   <div class="nav-item" onclick="goTo('semanal')"><span class="nav-icon">📅</span>Resumo Semanal</div>
+  <div class="nav-item" onclick="goTo('ajuda')"><span class="nav-icon">❓</span>Ajuda &amp; Tutorial</div>
   <div class="sidebar-footer">
     <div class="nav-item" onclick="openPinSettings()"><span class="nav-icon">🔒</span>PIN de Acesso</div>
     <div class="nav-item" onclick="ativarNotificacoes()" id="notif-btn"><span class="nav-icon">🔔</span>Ativar Notificações</div>
@@ -864,6 +866,64 @@ body.readonly .card-title::after{content:' 👁 leitura';font-size:11px;color:va
     <div class="fab-action" onclick="openQuickModal('despesa')"><div class="fab-action-label">− Despesa</div><button class="fab-action-btn expense">−</button></div>
   </div>
   <button class="fab-main" id="fab-main" onclick="toggleFab()">＋</button>
+</div>
+
+<!-- AJUDA / TUTORIAL -->
+<div id="page-ajuda" class="page">
+  <div class="page-header">
+    <div class="page-title">❓ Ajuda &amp; Tutorial</div>
+    <div class="page-subtitle">Como usar cada seção do sistema passo a passo</div>
+  </div>
+
+  <!-- PRIMEIROS PASSOS -->
+  <div class="card mb">
+    <div class="card-title">🚀 Por onde começar</div>
+    <div style="display:flex;flex-direction:column;gap:16px;margin-top:8px">
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="min-width:32px;height:32px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">1</div>
+        <div><div style="font-weight:600;margin-bottom:2px">Cadastre suas categorias</div><div style="font-size:13px;color:var(--text-muted)">Vá em <b>Orçamento</b> → adicione categorias como Moradia, Alimentação, Transporte. As categorias padrão já foram criadas automaticamente para você.</div></div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="min-width:32px;height:32px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">2</div>
+        <div><div style="font-weight:600;margin-bottom:2px">Adicione seus cartões de crédito</div><div style="font-size:13px;color:var(--text-muted)">Vá em <b>Cartões de Crédito</b> → adicione nome, limite e data de fechamento. Depois aparecerão como opção ao registrar despesas.</div></div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="min-width:32px;height:32px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">3</div>
+        <div><div style="font-weight:600;margin-bottom:2px">Configure suas despesas fixas</div><div style="font-size:13px;color:var(--text-muted)">Vá em <b>Recorrentes</b> → adicione aluguel, contas de luz, academia, etc. Elas serão lançadas automaticamente todo mês no dia certo.</div></div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="min-width:32px;height:32px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">4</div>
+        <div><div style="font-weight:600;margin-bottom:2px">Registre gastos do dia a dia</div><div style="font-size:13px;color:var(--text-muted)">Use o botão <b>＋</b> (canto inferior direito) para lançar receitas e despesas rapidamente. Ou use o 🎤 para falar/digitar em linguagem natural.</div></div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="min-width:32px;height:32px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">5</div>
+        <div><div style="font-weight:600;margin-bottom:2px">Acompanhe no Dashboard</div><div style="font-size:13px;color:var(--text-muted)">O <b>Dashboard</b> mostra seu resumo do mês: receita, gastos, saldo e score financeiro. Use os botões de mês para navegar entre períodos.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÕES DO MENU -->
+  <div class="card mb">
+    <div class="card-title">📋 O que cada tela faz</div>
+    <div style="display:flex;flex-direction:column;gap:0;margin-top:8px">
+      <div id="ajuda-secoes"></div>
+    </div>
+  </div>
+
+  <!-- DICAS -->
+  <div class="card mb">
+    <div class="card-title">💡 Dicas rápidas</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+      <div style="display:flex;gap:10px;font-size:13px"><span>🎤</span><span>Clique no microfone e fale <i>"gastei 85 reais no mercado, foi a Natália"</i> — o app preenche tudo sozinho.</span></div>
+      <div style="display:flex;gap:10px;font-size:13px"><span>📅</span><span>Os lançamentos recorrentes são criados automaticamente na virada do mês — você só confirma se foram pagos.</span></div>
+      <div style="display:flex;gap:10px;font-size:13px"><span>💳</span><span>Ao registrar uma despesa no cartão, selecione o cartão no campo "Cartão" — o sistema calcula o ciclo de faturamento automaticamente.</span></div>
+      <div style="display:flex;gap:10px;font-size:13px"><span>🎯</span><span>Em Metas, use o botão "Aportar" para depositar ou retirar valores. O progresso atualiza na hora.</span></div>
+      <div style="display:flex;gap:10px;font-size:13px"><span>🔒</span><span>Configure um PIN de 4 dígitos em Menu → PIN de Acesso para proteger o sistema de olhares curiosos.</span></div>
+      <div style="display:flex;gap:10px;font-size:13px"><span>💾</span><span>Os dados ficam salvos automaticamente na nuvem (Supabase) e sincronizam entre todos os dispositivos de vocês.</span></div>
+      <div style="display:flex;gap:10px;font-size:13px"><span>📊</span><span>Use Menu → Exportar CSV para baixar todos os lançamentos em planilha (compatível com Excel).</span></div>
+      <div style="display:flex;gap:10px;font-size:13px"><span>👁</span><span>Ative o Modo Leitura antes de mostrar o app para alguém — bloqueia edições e oculta botões de ação.</span></div>
+    </div>
+  </div>
 </div>
 
 <!-- MODAL ENTRADA RÁPIDA -->
@@ -1266,6 +1326,33 @@ function vmAplicar(){
 // mantém compatibilidade com código antigo que chamava stopVoice()
 function stopVoice(){_vmStopRec();}
 // ─────────────────────────────────────────────────────
+
+function injectDefaultCats(){
+  if(S.categorias.length>0)return; // já tem categorias, não sobrescreve
+  const defaults=[
+    {nome:'Moradia',       tipo:'Fixo',     planejado:0},
+    {nome:'Alimentação',   tipo:'Variável', planejado:0},
+    {nome:'Mercado',       tipo:'Variável', planejado:0},
+    {nome:'Restaurantes',  tipo:'Lazer',    planejado:0},
+    {nome:'Transporte',    tipo:'Variável', planejado:0},
+    {nome:'Saúde',         tipo:'Variável', planejado:0},
+    {nome:'Educação',      tipo:'Fixo',     planejado:0},
+    {nome:'Lazer',         tipo:'Lazer',    planejado:0},
+    {nome:'Vestuário',     tipo:'Variável', planejado:0},
+    {nome:'Cuidados Pessoais',tipo:'Variável',planejado:0},
+    {nome:'Assinaturas',   tipo:'Fixo',     planejado:0},
+    {nome:'Pets',          tipo:'Variável', planejado:0},
+    {nome:'Presentes',     tipo:'Variável', planejado:0},
+    {nome:'Viagem',        tipo:'Lazer',    planejado:0},
+    {nome:'Poupança',      tipo:'Poupança', planejado:0},
+    {nome:'Investimentos', tipo:'Poupança', planejado:0},
+    {nome:'Salário',       tipo:'Fixo',     planejado:0},
+    {nome:'Freelance',     tipo:'Variável', planejado:0},
+    {nome:'Outros',        tipo:'Variável', planejado:0},
+  ];
+  S.categorias=defaults;
+  save();
+}
 
 function autoLancar(){
   const now=new Date();
@@ -1731,7 +1818,7 @@ window.addEventListener('load',async()=>{
   load();
   const loaded=await _sbLoad();
   if(!loaded)_sbOnline=false;
-  migratePIN();autoLancar();applyAvatars();
+  migratePIN();autoLancar();applyAvatars();injectDefaultCats();
   document.getElementById('lan-data').value=new Date().toISOString().split('T')[0];
   updateSelects();renderDashboard();
   document.getElementById('quick-modal').addEventListener('click',e=>{if(e.target.id==='quick-modal')closeQuickModal()});
@@ -3071,6 +3158,34 @@ function renderDonutInterativo(data, total) {
 RENDERS['simulador'] = function() {
   renderReserva();
   calcSim();
+};
+RENDERS['ajuda'] = function() {
+  const el = document.getElementById('ajuda-secoes');
+  if (!el || el.innerHTML) return;
+  const secoes = [
+    {icon:'📊', nome:'Dashboard',        desc:'Visão geral do mês: receitas, despesas, saldo, score financeiro e gráficos. É a tela inicial. Use os botões de mês para ver períodos anteriores.'},
+    {icon:'📝', nome:'Lançamentos',       desc:'Lista todos os gastos e receitas do mês. Filtre por categoria, tipo ou quem pagou. Clique em ✏️ para editar ou × para excluir qualquer lançamento.'},
+    {icon:'📋', nome:'Orçamento',         desc:'Defina um valor planejado para cada categoria (ex: R$800 em Alimentação). O sistema mostra o quanto já foi gasto vs. o que foi planejado, com barra de progresso.'},
+    {icon:'💳', nome:'Cartões de Crédito',desc:'Cadastre seus cartões com limite e data de fechamento. O sistema calcula automaticamente o ciclo atual e mostra quanto foi gasto em cada cartão no período.'},
+    {icon:'🔁', nome:'Recorrentes',       desc:'Despesas e receitas que se repetem todo mês (aluguel, salário, academia). Cadastre uma vez e elas são lançadas automaticamente no dia certo todo mês.'},
+    {icon:'🔄', nome:'Assinaturas',       desc:'Controle serviços de streaming e assinaturas digitais (Netflix, Spotify, etc). Veja o total gasto por mês e gerencie o que está ativo ou inativo.'},
+    {icon:'🔮', nome:'Fluxo de Caixa',   desc:'Projeção dos próximos meses com base nas receitas e despesas recorrentes. Ajuda a planejar grandes compras e visualizar o saldo futuro estimado.'},
+    {icon:'🎯', nome:'Metas',             desc:'Crie objetivos financeiros (ex: Reserva de Emergência R$10.000). Aporte valores periodicamente e acompanhe o progresso. Você pode retirar valores também.'},
+    {icon:'🧩', nome:'Bola de Neve',      desc:'Estratégia para quitar dívidas. Cadastre suas dívidas com saldo, juros e pagamento mensal. O sistema calcula em quantos meses cada uma será paga.'},
+    {icon:'🧮', nome:'Simulador',         desc:'Calcule juros compostos e simule investimentos. Informe valor inicial, aporte mensal e taxa de rendimento para ver a projeção do patrimônio ao longo do tempo.'},
+    {icon:'⚖️', nome:'Comparativo',       desc:'Compare dois meses lado a lado: receitas, despesas e saldo de cada período. Útil para identificar meses em que os gastos aumentaram.'},
+    {icon:'📈', nome:'Histórico',         desc:'Visão dos últimos 12 meses em gráfico de linhas. Veja a evolução de receitas e despesas ao longo do ano e identifique tendências.'},
+    {icon:'📅', nome:'Resumo Semanal',    desc:'Breakdown do mês dividido semana a semana. Veja quanto foi gasto em cada semana do mês selecionado, com a lista de lançamentos de cada período.'},
+  ];
+  el.innerHTML = secoes.map((s,i) => `
+    <div style="display:flex;gap:14px;padding:14px 0;${i>0?'border-top:1px solid var(--border)':''}">
+      <div style="font-size:24px;min-width:32px;text-align:center">${s.icon}</div>
+      <div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:3px">${s.nome}</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.5">${s.desc}</div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:6px;font-size:11px" onclick="goTo('${s.nome==='Dashboard'?'dashboard':s.nome==='Lançamentos'?'lancamentos':s.nome==='Orçamento'?'orcamento':s.nome==='Cartões de Crédito'?'cartoes':s.nome==='Recorrentes'?'recorrentes':s.nome==='Assinaturas'?'assinaturas':s.nome==='Fluxo de Caixa'?'fluxo':s.nome==='Metas'?'metas':s.nome==='Bola de Neve'?'dividas':s.nome==='Simulador'?'simulador':s.nome==='Comparativo'?'comparativo':s.nome==='Histórico'?'historico':'semanal'}')">Ir para ${s.nome} →</button>
+      </div>
+    </div>`).join('');
 };
 RENDERS['comparativo'] = function() {
   buildMonthOptions('cmp-mes-a', -1);
