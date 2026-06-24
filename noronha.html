@@ -373,6 +373,7 @@ body.readonly .card-title::after{content:' 👁 leitura';font-size:11px;color:va
   <div class="nav-item" onclick="goTo('semanal')"><span class="nav-icon">📅</span>Resumo Semanal</div>
   <div class="sidebar-footer">
     <div class="nav-item" onclick="openPinSettings()"><span class="nav-icon">🔒</span>PIN de Acesso</div>
+    <div class="nav-item" onclick="ativarNotificacoes()" id="notif-btn"><span class="nav-icon">🔔</span>Ativar Notificações</div>
     <div class="nav-item" onclick="toggleReadOnly()" id="readonly-btn"><span class="nav-icon">👁</span>Modo Leitura</div>
     <div class="nav-item" onclick="exportCSV()"><span class="nav-icon">📊</span>Exportar CSV</div>
     <div class="nav-item" onclick="exportData()"><span class="nav-icon">💾</span>Exportar Backup</div>
@@ -2319,6 +2320,46 @@ function processPIN() {
     }
   }
 }
+
+// ── PUSH NOTIFICATIONS ────────────────────────────────
+const _VAPID_PUBLIC = 'BDx3c0Q43ojna_3bd94U8MN8o2IERDUQgaa0nu2_cWRE5ORoTPdGmpx_5B901eStkwQrpmlfge2aqRX0dQZVRnU';
+
+function _urlB64ToUint8(b64) {
+  const pad = '='.repeat((4 - b64.length % 4) % 4);
+  const raw = atob(b64.replace(/-/g,'+').replace(/_/g,'/') + pad);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function ativarNotificacoes() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    alert('Notificações push não são suportadas neste navegador.\nUse Chrome ou Edge no Android.'); return;
+  }
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') { showToast('Permissão negada para notificações', 'error'); return; }
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: _urlB64ToUint8(_VAPID_PUBLIC)
+      });
+    }
+    // Salva no Supabase
+    const nome = prompt('Seu nome neste dispositivo (Matheus ou Natália):') || 'Usuário';
+    await fetch(_SB_URL + '/rest/v1/push_subscriptions', {
+      method: 'POST',
+      headers: { ..._SB_HDR, 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({ user_name: nome, subscription: sub.toJSON() })
+    });
+    document.getElementById('notif-btn').innerHTML = '<span class="nav-icon">🔔</span>Notificações ativas ✓';
+    showToast('Notificações ativadas! Você receberá lembretes 1 dia antes dos vencimentos.');
+  } catch(e) {
+    showToast('Erro ao ativar notificações: ' + e.message, 'error');
+  }
+}
+// ─────────────────────────────────────────────────────
 
 function openPinSettings() {
   const hasPIN = getPIN();
