@@ -355,6 +355,44 @@ body.readonly .card-title::after{content:' 👁 leitura';font-size:11px;color:va
 .pin-error{color:var(--gold);font-size:13px;height:20px;text-align:center;margin-top:6px}
 .pin-setup-hint{font-size:12px;color:rgba(255,255,255,.3);margin-top:16px;text-align:center;max-width:240px;line-height:1.5}
 
+/* ── Install banner ── */
+#install-banner{position:fixed;bottom:68px;left:12px;right:12px;z-index:590;background:var(--navy);border-radius:14px;padding:14px 16px;display:none;align-items:center;gap:12px;box-shadow:var(--shadow-lg);animation:fabIn .3s ease}
+#install-banner.show{display:flex}
+.ib-text{flex:1;font-size:13px;color:#fff;font-weight:500;line-height:1.4}
+.ib-text span{display:block;font-size:11px;color:rgba(255,255,255,.5);margin-top:1px}
+.ib-btn{background:var(--gold);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit}
+.ib-close{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+
+/* ── Setup modal ── */
+#setup-modal{position:fixed;inset:0;z-index:4000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+#setup-modal.hidden{display:none}
+.setup-sheet{background:var(--white);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:0;animation:sheetIn .28s ease;overflow:hidden}
+@keyframes sheetIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.setup-header{background:var(--navy);padding:20px 20px 18px;position:relative}
+.setup-drag{width:36px;height:3px;background:rgba(255,255,255,.2);border-radius:2px;margin:0 auto 16px}
+.setup-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:2px}
+.setup-sub{font-size:12px;color:rgba(255,255,255,.45)}
+.setup-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+.setup-body{padding:20px}
+.setup-step{display:none}.setup-step.active{display:block}
+.setup-step-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:16px}
+.setup-instructions{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.setup-inst-row{display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--bg);border-radius:10px}
+.setup-inst-num{width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.setup-inst-text{font-size:13px;color:var(--text);line-height:1.5}
+.setup-inst-text strong{color:var(--navy)}
+.setup-inst-icon{font-size:18px;flex-shrink:0;margin-top:2px}
+.setup-progress{display:flex;gap:6px;justify-content:center;margin-bottom:16px}
+.setup-prog-dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:var(--transition)}
+.setup-prog-dot.active{background:var(--navy);width:20px;border-radius:4px}
+.setup-done{text-align:center;padding:20px 0}
+.setup-done-icon{font-size:48px;margin-bottom:10px}
+.setup-done-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px}
+.setup-done-sub{font-size:13px;color:var(--text-muted);line-height:1.5}
+.setup-quem{display:flex;gap:8px;margin-bottom:16px}
+.setup-quem-btn{flex:1;padding:12px;border:2px solid var(--border);border-radius:10px;background:var(--white);cursor:pointer;text-align:center;font-size:14px;font-weight:600;color:var(--text-mid);transition:var(--transition);font-family:inherit}
+.setup-quem-btn.sel{border-color:var(--navy);color:var(--navy);background:var(--navy-muted)}
+
 /* ── Onboarding ── */
 #onboarding-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:7000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
 .onboarding-card{background:var(--white);border-radius:24px;padding:40px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:modalIn .3s ease}
@@ -446,6 +484,106 @@ body.readonly .card-title::after{content:' 👁 leitura';font-size:11px;color:va
     <div class="drawer-item" onclick="exportCSV();closeDrawer()"><span class="nav-icon"><i data-lucide="download"></i></span>Exportar CSV</div>
     <div class="drawer-item" onclick="exportData();closeDrawer()"><span class="nav-icon"><i data-lucide="hard-drive"></i></span>Exportar Backup</div>
     <div class="drawer-item" onclick="document.getElementById('imp-file').click();closeDrawer()"><span class="nav-icon"><i data-lucide="upload"></i></span>Importar Dados</div>
+  </div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div id="install-banner">
+  <div class="ib-text">Instalar o app no celular<span>Acesso rápido sem abrir o navegador</span></div>
+  <button class="ib-btn" onclick="triggerInstall()">Instalar</button>
+  <button class="ib-close" onclick="dismissInstallBanner()">✕</button>
+</div>
+
+<!-- SETUP MODAL -->
+<div id="setup-modal" class="hidden" onclick="if(event.target===this)closeSetupModal()">
+  <div class="setup-sheet">
+    <div class="setup-header">
+      <div class="setup-drag"></div>
+      <div class="setup-title">Configurar App</div>
+      <div class="setup-sub">Instale e ative notificações</div>
+      <button class="setup-close" onclick="closeSetupModal()">✕</button>
+    </div>
+    <div class="setup-body">
+      <div class="setup-progress">
+        <div class="setup-prog-dot active" id="sp-1"></div>
+        <div class="setup-prog-dot" id="sp-2"></div>
+        <div class="setup-prog-dot" id="sp-3"></div>
+      </div>
+
+      <!-- PASSO 1: Instalar (Android) -->
+      <div class="setup-step active" id="ss-android">
+        <div class="setup-step-label">Passo 1 · Instalar no Android</div>
+        <div class="setup-instructions">
+          <div class="setup-inst-row">
+            <div class="setup-inst-num">1</div>
+            <div class="setup-inst-text">Toque em <strong>Instalar agora</strong> abaixo. O Chrome vai pedir confirmação — toque em <strong>Instalar</strong>.</div>
+          </div>
+          <div class="setup-inst-row">
+            <div class="setup-inst-num">2</div>
+            <div class="setup-inst-text">Se aparecer aviso do <strong>Play Protect</strong>, toque em <strong>"Instalar mesmo assim"</strong> — o app é seguro, só é novo para o Google.</div>
+          </div>
+          <div class="setup-inst-row">
+            <div class="setup-inst-num">3</div>
+            <div class="setup-inst-text">O ícone <strong>Noronha $</strong> vai aparecer na sua tela inicial. Abra por lá para a experiência completa!</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;min-height:52px;font-size:15px" onclick="triggerInstall()">📲 Instalar agora</button>
+        <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px" onclick="setupGoTo(2)">Já instalei → próximo</button>
+      </div>
+
+      <!-- PASSO 1: Instalar (iOS) -->
+      <div class="setup-step" id="ss-ios">
+        <div class="setup-step-label">Passo 1 · Instalar no iPhone / iPad</div>
+        <div class="setup-instructions">
+          <div class="setup-inst-row">
+            <div class="setup-inst-icon">⬆️</div>
+            <div class="setup-inst-text">No Safari, toque no ícone de <strong>Compartilhar</strong> (quadrado com seta para cima) na barra inferior.</div>
+          </div>
+          <div class="setup-inst-row">
+            <div class="setup-inst-icon">➕</div>
+            <div class="setup-inst-text">Role a lista e toque em <strong>"Adicionar à Tela de Início"</strong>.</div>
+          </div>
+          <div class="setup-inst-row">
+            <div class="setup-inst-icon">✅</div>
+            <div class="setup-inst-text">Toque em <strong>Adicionar</strong> no canto superior direito. Pronto!</div>
+          </div>
+        </div>
+        <div class="alert info" style="font-size:12px;margin-bottom:0">No iPhone, notificações push só funcionam no iOS 16.4+ com o app instalado na tela inicial.</div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px;min-height:52px;font-size:15px" onclick="setupGoTo(2)">Já adicionei → próximo</button>
+      </div>
+
+      <!-- PASSO 1: Já instalado -->
+      <div class="setup-step" id="ss-installed">
+        <div class="setup-step-label">Passo 1 · Instalação</div>
+        <div class="setup-inst-row" style="background:var(--green-bg)">
+          <div class="setup-inst-icon">✅</div>
+          <div class="setup-inst-text" style="color:var(--green)"><strong>App já instalado!</strong><br>Você está usando no modo app.</div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;min-height:52px;font-size:15px" onclick="setupGoTo(2)">Próximo →</button>
+      </div>
+
+      <!-- PASSO 2: Notificações -->
+      <div class="setup-step" id="ss-notif">
+        <div class="setup-step-label">Passo 2 · Ativar notificações</div>
+        <p style="font-size:13px;color:var(--text-mid);margin-bottom:14px;line-height:1.5">Você vai receber um aviso <strong>1 dia antes</strong> de cada conta vencer. Escolha seu nome:</p>
+        <div class="setup-quem">
+          <button class="setup-quem-btn" id="sqb-mat" onclick="selectSetupQuem('Matheus')">👤 Matheus</button>
+          <button class="setup-quem-btn" id="sqb-nat" onclick="selectSetupQuem('Natália')">👤 Natália</button>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;min-height:52px;font-size:15px" id="ss-notif-btn" onclick="setupAtivarNotif()" disabled>🔔 Ativar notificações</button>
+        <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px" onclick="closeSetupModal()">Pular por agora</button>
+      </div>
+
+      <!-- PASSO 3: Concluído -->
+      <div class="setup-step" id="ss-done">
+        <div class="setup-done">
+          <div class="setup-done-icon">🎉</div>
+          <div class="setup-done-title">Tudo configurado!</div>
+          <div class="setup-done-sub">O app está instalado e as notificações ativadas.<br>Você vai receber lembretes antes dos vencimentos.</div>
+          <button class="btn btn-primary" style="margin-top:20px;min-height:52px;padding:0 32px;font-size:15px" onclick="closeSetupModal()">Pronto!</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2598,34 +2736,116 @@ function _urlB64ToUint8(b64) {
   return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }
 
-async function ativarNotificacoes() {
+// ── Install prompt ──────────────────────────────────────
+let _installPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _installPrompt = e;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (!isStandalone && !localStorage.getItem('noronha_banner_dismissed')) {
+    document.getElementById('install-banner').classList.add('show');
+  }
+});
+window.addEventListener('appinstalled', () => {
+  _installPrompt = null;
+  document.getElementById('install-banner').classList.remove('show');
+  showToast('App instalado com sucesso! 🎉', 'ok');
+});
+function dismissInstallBanner() {
+  document.getElementById('install-banner').classList.remove('show');
+  localStorage.setItem('noronha_banner_dismissed', '1');
+}
+async function triggerInstall() {
+  if (_installPrompt) {
+    _installPrompt.prompt();
+    const { outcome } = await _installPrompt.userChoice;
+    if (outcome === 'accepted') { _installPrompt = null; setupGoTo(2); }
+  } else {
+    setupGoTo(2);
+  }
+}
+
+// ── Setup modal ──────────────────────────────────────────
+let _setupQuem = '';
+function openSetupModal() {
+  const modal = document.getElementById('setup-modal');
+  modal.classList.remove('hidden');
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  // Mostrar passo 1 correto
+  document.getElementById('ss-android').classList.remove('active');
+  document.getElementById('ss-ios').classList.remove('active');
+  document.getElementById('ss-installed').classList.remove('active');
+  document.getElementById('ss-notif').classList.remove('active');
+  document.getElementById('ss-done').classList.remove('active');
+  if (isStandalone) {
+    document.getElementById('ss-installed').classList.add('active');
+  } else if (isIOS) {
+    document.getElementById('ss-ios').classList.add('active');
+  } else {
+    document.getElementById('ss-android').classList.add('active');
+  }
+  _setSetupProgress(1);
+}
+function closeSetupModal() {
+  document.getElementById('setup-modal').classList.add('hidden');
+}
+function _setSetupProgress(step) {
+  [1,2,3].forEach(i => {
+    document.getElementById('sp-'+i).classList.toggle('active', i === step);
+  });
+}
+function setupGoTo(step) {
+  document.querySelectorAll('.setup-step').forEach(el => el.classList.remove('active'));
+  if (step === 2) { document.getElementById('ss-notif').classList.add('active'); _setSetupProgress(2); }
+  if (step === 3) { document.getElementById('ss-done').classList.add('active'); _setSetupProgress(3); }
+}
+function selectSetupQuem(nome) {
+  _setupQuem = nome;
+  document.getElementById('sqb-mat').classList.toggle('sel', nome === 'Matheus');
+  document.getElementById('sqb-nat').classList.toggle('sel', nome === 'Natália');
+  document.getElementById('ss-notif-btn').disabled = false;
+}
+async function setupAtivarNotif() {
+  if (!_setupQuem) return;
+  const btn = document.getElementById('ss-notif-btn');
+  btn.textContent = 'Aguarde...'; btn.disabled = true;
+  try {
+    await _registrarNotificacao(_setupQuem);
+    setupGoTo(3);
+  } catch(e) {
+    btn.textContent = '🔔 Ativar notificações'; btn.disabled = false;
+    showToast('Erro: ' + e.message, 'err');
+  }
+}
+
+async function _registrarNotificacao(nome) {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    alert('Notificações push não são suportadas neste navegador.\nUse Chrome ou Edge no Android.'); return;
+    throw new Error('Use Chrome no Android ou Safari no iOS 16.4+');
   }
   const perm = await Notification.requestPermission();
-  if (perm !== 'granted') { showToast('Permissão negada para notificações', 'error'); return; }
-
-  try {
-    const reg = await navigator.serviceWorker.ready;
-    let sub = await reg.pushManager.getSubscription();
-    if (!sub) {
-      sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: _urlB64ToUint8(_VAPID_PUBLIC)
-      });
-    }
-    // Salva no Supabase
-    const nome = prompt('Seu nome neste dispositivo (Matheus ou Natália):') || 'Usuário';
-    await fetch(_SB_URL + '/rest/v1/push_subscriptions', {
-      method: 'POST',
-      headers: { ..._SB_HDR, 'Prefer': 'resolution=merge-duplicates' },
-      body: JSON.stringify({ user_name: nome, subscription: sub.toJSON() })
+  if (perm !== 'granted') throw new Error('Permissão negada. Libere nas configurações do navegador.');
+  const reg = await navigator.serviceWorker.ready;
+  let sub = await reg.pushManager.getSubscription();
+  if (!sub) {
+    sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: _urlB64ToUint8(_VAPID_PUBLIC)
     });
-    document.getElementById('notif-btn').innerHTML = '<span class="nav-icon">🔔</span>Notificações ativas ✓';
-    showToast('Notificações ativadas! Você receberá lembretes 1 dia antes dos vencimentos.');
-  } catch(e) {
-    showToast('Erro ao ativar notificações: ' + e.message, 'error');
   }
+  await fetch(_SB_URL + '/rest/v1/push_subscriptions', {
+    method: 'POST',
+    headers: { ..._SB_HDR, 'Prefer': 'resolution=merge-duplicates' },
+    body: JSON.stringify({ user_name: nome, subscription: sub.toJSON() })
+  });
+  const nb = document.getElementById('notif-btn');
+  if (nb) nb.innerHTML = '<span class="nav-icon"><i data-lucide="bell"></i></span>Notificações ativas ✓';
+  if (window.lucide) lucide.createIcons();
+  showToast('Notificações ativadas! 🔔', 'ok');
+}
+
+async function ativarNotificacoes() {
+  openSetupModal();
 }
 // ─────────────────────────────────────────────────────
 
