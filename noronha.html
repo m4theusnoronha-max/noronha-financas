@@ -550,7 +550,7 @@ body.readonly .card-title::after{content:' 👁 leitura';font-size:11px;color:va
     </div>
     <div class="form-row r4">
       <div class="form-group"><label class="form-label">Valor (R$)</label><input class="form-input" id="lan-valor" type="number" placeholder="0,00" step="0.01"></div>
-      <div class="form-group"><label class="form-label">Tipo</label><select class="form-select" id="lan-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option></select></div>
+      <div class="form-group"><label class="form-label">Tipo</label><select class="form-select" id="lan-tipo" onchange="updateSelects()"><option value="despesa">Despesa</option><option value="receita">Receita</option></select></div>
       <div class="form-group"><label class="form-label">Quem</label><select class="form-select" id="lan-quem"><option value="Matheus">Matheus</option><option value="Natália">Natália</option><option value="Casal">Casal</option></select></div>
       <div class="form-group"><label class="form-label">Cartão</label><select class="form-select" id="lan-cartao"><option value="">Débito / Dinheiro</option></select></div>
     </div>
@@ -1134,8 +1134,12 @@ function openQuickModal(tipo){
 }
 function closeQuickModal(){document.getElementById('quick-modal').classList.add('hidden');stopVoice()}
 function syncQSelects(){
+  const tipo=document.getElementById('q-tipo')?.value||'despesa';
   const qc=document.getElementById('q-cat');
-  if(qc)qc.innerHTML='<option value="Receita">Receita</option>'+S.categorias.map(c=>'<option value="'+c.nome+'">'+c.nome+'</option>').join('');
+  if(qc){
+    const rec=tipo==='receita'?'<option value="Receita">Receita</option>':'';
+    qc.innerHTML=rec+S.categorias.map(c=>'<option value="'+c.nome+'">'+c.nome+'</option>').join('');
+  }
   const qq=document.getElementById('q-cartao');
   if(qq)qq.innerHTML='<option value="">Débito / Dinheiro</option>'+S.cartoes.map(c=>'<option value="'+c.id+'">'+c.emoji+' '+c.nome+'</option>').join('');
 }
@@ -1385,8 +1389,11 @@ function autoLancar(){
 }
 
 function updateSelects(){
-  const co='<option value="Receita">Receita</option>'+S.categorias.map(c=>'<option value="'+c.nome+'">'+c.nome+'</option>').join('');
-  ['lan-cat','rec-cat'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=co});
+  const lanTipo=document.getElementById('lan-tipo')?.value||'despesa';
+  const lanRec=lanTipo==='receita'?'<option value="Receita">Receita</option>':'';
+  const co=S.categorias.map(c=>'<option value="'+c.nome+'">'+c.nome+'</option>').join('');
+  const el=document.getElementById('lan-cat');if(el)el.innerHTML=lanRec+co;
+  const re=document.getElementById('rec-cat');if(re)re.innerHTML='<option value="Receita">Receita</option>'+co;
   const fc=document.getElementById('f-cat');
   if(fc)fc.innerHTML='<option value="">Todas as categorias</option>'+S.categorias.map(c=>'<option value="'+c.nome+'">'+c.nome+'</option>').join('');
   const cco='<option value="">Débito / Dinheiro</option>'+S.cartoes.map(c=>'<option value="'+c.id+'">'+c.emoji+' '+c.nome+'</option>').join('');
