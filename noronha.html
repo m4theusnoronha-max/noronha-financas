@@ -1355,14 +1355,22 @@ function renderDashboard(){
   drawBarChart();
 }
 
+function _setupCanvas(c){
+  const dpr=window.devicePixelRatio||1;
+  const W=c.offsetWidth||300,H=c.offsetHeight||200;
+  c.width=W*dpr;c.height=H*dpr;
+  const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
+  return{ctx,W,H};
+}
+
 function drawBarChart(){
   const c=document.getElementById('bar-chart');if(!c)return;
-  const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
+  const{ctx,W,H}=_setupCanvas(c);ctx.clearRect(0,0,W,H);
   const now=new Date(),mons=[];
   for(let i=5;i>=0;i--){let m=now.getMonth()-i,y=now.getFullYear();while(m<0){m+=12;y--}mons.push({m,y,l:MS[m]})}
   const data=mons.map(({m,y,l})=>({l,r:recMes(m,y),d:despMes(m,y)}));
   const maxV=Math.max(...data.flatMap(x=>[x.r,x.d]),1);
-  const W=c.width,H=c.height,pL=52,pB=28,pT=12,pR=12,cW=W-pL-pR,cH=H-pB-pT;
+  const pL=52,pB=28,pT=12,pR=12,cW=W-pL-pR,cH=H-pB-pT;
   ctx.fillStyle='#F7F7F5';ctx.fillRect(0,0,W,H);
   for(let i=0;i<=4;i++){
     const yy=pT+(cH/4)*i;ctx.strokeStyle='#E8E8E4';ctx.lineWidth=1;
@@ -1662,8 +1670,8 @@ function renderHistorico(){
     '<div class="kpi-card"><div class="kpi-accent" style="background:var(--gold)"></div><div class="kpi-label">Média Mensal Gasto</div><div class="kpi-value gold">'+fmt(tD/12)+'</div></div>';
   const c=document.getElementById('hist-chart');
   if(c){
-    const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
-    const W=c.width,H=c.height,pL=56,pB=28,pT=12,pR=12,cW=W-pL-pR,cH=H-pB-pT;
+    const{ctx,W,H}=_setupCanvas(c);ctx.clearRect(0,0,W,H);
+    const pL=56,pB=28,pT=12,pR=12,cW=W-pL-pR,cH=H-pB-pT;
     const maxV=Math.max(...data.flatMap(x=>[x.r,x.d]),1);
     ctx.fillStyle='#F7F7F5';ctx.fillRect(0,0,W,H);
     for(let i=0;i<=4;i++){const yy=pT+(cH/4)*i;ctx.strokeStyle='#E8E8E4';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pL,yy);ctx.lineTo(W-pR,yy);ctx.stroke();const val=maxV*(1-i/4);ctx.fillStyle='#9A9A9A';ctx.font='10px DM Mono,monospace';ctx.textAlign='right';ctx.fillText(val>=1000?(val/1000).toFixed(1)+'k':val.toFixed(0),pL-5,yy+4)}
@@ -2594,8 +2602,8 @@ renderLancamentos = function() {
 function drawDonut(canvasId, data, total) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height, cx = W/2, cy = H/2;
+  const{ctx,W,H}=_setupCanvas(canvas);
+  const cx=W/2,cy=H/2;
   const R = Math.min(W, H) * 0.42, r = R * 0.6;
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--white') || '#fff';
@@ -2794,8 +2802,7 @@ function calcSim() {
 function drawSimChart(PV, PMT, i, n) {
   const canvas = document.getElementById('sim-chart');
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
+  const{ctx,W,H}=_setupCanvas(canvas);
   const pL=56, pB=32, pT=14, pR=14;
   const cW=W-pL-pR, cH=H-pB-pT;
 
@@ -3038,10 +3045,10 @@ function renderDonutInterativo(data, total) {
   });
   canvas.onclick = e => {
     const rect = canvas.getBoundingClientRect();
-    const cx = canvas.width / 2, cy = canvas.height / 2;
-    const x = (e.clientX - rect.left) * (canvas.width / rect.width) - cx;
-    const y = (e.clientY - rect.top) * (canvas.height / rect.height) - cy;
-    const R = Math.min(canvas.width, canvas.height) * 0.42;
+    const cx = rect.width / 2, cy = rect.height / 2;
+    const x = (e.clientX - rect.left) - cx;
+    const y = (e.clientY - rect.top) - cy;
+    const R = Math.min(rect.width, rect.height) * 0.42;
     const r = R * 0.6;
     const dist = Math.sqrt(x*x + y*y);
     if (dist < r || dist > R) return;
