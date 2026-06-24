@@ -890,12 +890,15 @@ function parseVoice(txt,ctx){
 }
 
 function autoLancar(){
-  const now=new Date(),key=now.getFullYear()+'-'+now.getMonth();
+  const now=new Date();
+  // Usa data local explícita para evitar problemas de fuso horário
+  const localYear=now.getFullYear(),localMonth=now.getMonth();
+  const key=localYear+'-'+localMonth;
   if(S.lastAutoMonth===key)return;
   S.lastAutoMonth=key;
   S.recorrentes.filter(r=>r.ativo).forEach(r=>{
-    const dia=Math.min(r.dia,new Date(now.getFullYear(),now.getMonth()+1,0).getDate());
-    const data=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
+    const dia=Math.min(r.dia,new Date(localYear,localMonth+1,0).getDate());
+    const data=localYear+'-'+String(localMonth+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
     const ex=S.lancamentos.some(l=>l.recorrenteId===r.id&&l.data.slice(0,7)===data.slice(0,7));
     if(!ex)S.lancamentos.push({id:++S.nextId,data,desc:r.desc,cat:r.cat,tipo:r.tipo,quem:r.quem,valor:r.valor,cartaoId:r.cartaoId||'',obs:'recorrente',recorrenteId:r.id,parcela:1,totalParcelas:1});
   });
@@ -917,7 +920,10 @@ function renderDashboard(){
   const rec=recMes(m,y),desp=despMes(m,y),saldo=rec-desp;
   const metaA=S.metas.reduce((s,x)=>s+x.aporte,0);
   const totalSub=S.assinaturas.reduce((s,a)=>s+a.valor,0);
-  document.getElementById('hero-month').textContent=MF[m]+' · '+y;
+  const isCurrentMonth=m===new Date().getMonth()&&y===new Date().getFullYear();
+  const heroMonthEl=document.getElementById('hero-month');
+  heroMonthEl.textContent=MF[m]+' · '+y+(isCurrentMonth?'':' ← mês histórico');
+  heroMonthEl.style.color=isCurrentMonth?'rgba(201,168,76,.8)':'rgba(248,180,80,.5)';
   document.getElementById('hn-rec').textContent=fmt(rec);
   document.getElementById('hn-desp').textContent=fmt(desp);
   const sEl=document.getElementById('hn-saldo');
@@ -1213,7 +1219,18 @@ function addMeta(){
   ['meta-nome','meta-total','meta-atual','meta-prazo','meta-aporte','meta-emoji'].forEach(id=>{document.getElementById(id).value=''});
   save();renderMetas();
 }
-function aportar(id){const v=parseFloat(prompt('Valor do aporte (R$):')||'0');if(v>0){const m=S.metas.find(x=>x.id===id);if(m)m.atual=Math.min(m.atual+v,m.total);save();renderMetas()}}
+function aportar(id){
+  const m=S.metas.find(x=>x.id===id);if(!m)return;
+  openEditModal('Aportar em: '+m.nome,[
+    {key:'valor',label:'Valor do aporte (R$)',type:'number',value:'',placeholder:'0,00'},
+    {key:'tipo',label:'Tipo',type:'select',value:'entrada',options:[{v:'entrada',l:'+ Depósito / Aporte'},{v:'saque',l:'− Retirada / Saque'}]},
+  ],vals=>{
+    const v=parseFloat(vals.valor)||0;if(!v)return;
+    if(vals.tipo==='entrada')m.atual=Math.min(m.atual+v,m.total);
+    else m.atual=Math.max(m.atual-v,0);
+    save();renderMetas();showToast(vals.tipo==='entrada'?'Aporte registrado!':'Retirada registrada!');
+  });
+}
 function removeMeta(id){S.metas=S.metas.filter(m=>m.id!==id);save();renderMetas()}
 
 function renderDividas(){calcBolaDeNeve()}
@@ -1230,7 +1247,24 @@ function calcBolaDeNeve(){
   const extra=parseFloat(document.getElementById('div-extra')?.value)||0;
   const sorted=[...S.dividas].sort((a,b)=>a.saldo-b.saldo);
   el.innerHTML='<div class="table-wrap"><table class="data-table"><thead><tr><th>Prioridade</th><th>Dívida</th><th>Saldo</th><th>Juros/mês</th><th>Mínimo</th><th>Extra</th><th>Meses</th><th></th></tr></thead><tbody>'+
-    sorted.map((d,i)=>{const tot=d.min+(i===0?extra:0);const meses=tot>0?Math.ceil(d.saldo/tot):'∞';return'<tr><td><span class="badge navy">#'+(i+1)+'</span></td><td>'+d.nome+'</td><td class="mono" style="color:var(--red);font-weight:600">'+fmt(d.saldo)+'</td><td class="mono">'+d.juros+'%</td><td class="mono">'+fmt(d.min)+'</td><td class="mono" style="color:'+(i===0?'var(--green)':'var(--text-dim)')+';font-weight:'+(i===0?'600':'400')+'">'+(i===0?fmt(extra):'—')+'</td><td><span class="badge '+(meses<=6?'green':meses<=12?'gold':'red')+'">'+meses+' meses</span></td><td><button class="btn btn-danger btn-sm" onclick="removeDiv('+d.id+')">×</button></td></tr>'}).join('')+
+    sorted.map((d,i)=>{
+    const pag=d.min+(i===0?extra:0);
+    let meses=0;
+    if(pag<=0){meses=Infinity;}
+    else{
+      const taxa=d.juros/100;
+      if(taxa===0){meses=Math.ceil(d.saldo/pag);}
+      else{
+        // amortização: n = -log(1 - saldo*taxa/pag) / log(1+taxa)
+        const arg=1-(d.saldo*taxa/pag);
+        meses=arg<=0?Infinity:Math.ceil(-Math.log(arg)/Math.log(1+taxa));
+      }
+    }
+    const mesesLabel=meses===Infinity||meses>600?'∞':meses+' meses';
+    const badgeCor=meses<=6?'green':meses<=12?'gold':'red';
+    const alertaJuros=(d.juros>0&&pag<=d.saldo*(d.juros/100));
+    return'<tr>'+(alertaJuros?'<td colspan="8"><div class="alert danger" style="margin:4px 0">🚨 <strong>'+d.nome+':</strong> pagamento ('+fmt(pag)+') menor que os juros mensais ('+fmt(d.saldo*d.juros/100)+'). A dívida nunca será quitada!</div></td>':'<td><span class="badge navy">#'+(i+1)+'</span></td><td>'+d.nome+'</td><td class="mono" style="color:var(--red);font-weight:600">'+fmt(d.saldo)+'</td><td class="mono">'+d.juros+'%</td><td class="mono">'+fmt(d.min)+'</td><td class="mono" style="color:'+(i===0?'var(--green)':'var(--text-dim)')+';font-weight:'+(i===0?'600':'400')+'">'+(i===0?fmt(extra):'—')+'</td><td><span class="badge '+badgeCor+'">'+mesesLabel+'</span></td><td><button class="btn btn-danger btn-sm" onclick="removeDiv('+d.id+')">×</button></td>')+'</tr>';
+  }).join('')+
     '</tbody></table></div><div class="alert warn" style="margin-top:14px">💡 Pague o mínimo de todas e coloque '+fmt(extra)+' extra na dívida #1. Quando ela zerar, some esse valor à próxima.</div>';
 }
 function removeDiv(id){const bk={...S.dividas.find(d=>d.id===id)};S.dividas=S.dividas.filter(d=>d.id!==id);save();calcBolaDeNeve();pushUndo('Dívida removida',()=>{S.dividas.push(bk);save();calcBolaDeNeve();});showToast('Dívida removida','warn',6000);}
@@ -1600,9 +1634,11 @@ renderDashboard = function() {
   const patrimonio = calcPatrimonio();
   const catAlerts = checkCategoryAlerts(m, y);
 
-  // Score card — injeta antes do gráfico de barras
+  // Score card — sempre recria para refletir o mês atual
+  const existingStrip = document.getElementById('score-strip');
+  if (existingStrip) existingStrip.remove();
   const barCard = document.getElementById('dash-stacked')?.closest('.card');
-  if (barCard && !document.getElementById('score-strip')) {
+  if (barCard) {
     const strip = document.createElement('div');
     strip.id = 'score-strip';
     strip.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px';
@@ -1640,15 +1676,6 @@ renderDashboard = function() {
         }).join('') + '</div>' : ''}
       </div>`;
     barCard.parentElement.insertBefore(strip, barCard);
-  } else if (document.getElementById('score-strip')) {
-    // Update existing
-    const sc = document.getElementById('score-strip');
-    if (sc) {
-      sc.querySelector('[style*="42px"]').textContent = score;
-      sc.querySelector('[style*="15px"]').textContent = label;
-      sc.querySelector('[style*="15px"]').style.color = cor;
-      sc.querySelector('[style*="12px"]').textContent = dica;
-    }
   }
 
   // Alertas de limite de categoria — adiciona no box de alertas
