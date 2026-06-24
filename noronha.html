@@ -1356,16 +1356,24 @@ function injectDefaultCats(){
 
 function autoLancar(){
   const now=new Date();
-  // Usa data local explícita para evitar problemas de fuso horário
   const localYear=now.getFullYear(),localMonth=now.getMonth();
   const key=localYear+'-'+localMonth;
   if(S.lastAutoMonth===key)return;
   S.lastAutoMonth=key;
+  const mesStr=localYear+'-'+String(localMonth+1).padStart(2,'0');
+  // Lança recorrentes
   S.recorrentes.filter(r=>r.ativo).forEach(r=>{
     const dia=Math.min(r.dia,new Date(localYear,localMonth+1,0).getDate());
-    const data=localYear+'-'+String(localMonth+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
-    const ex=S.lancamentos.some(l=>l.recorrenteId===r.id&&l.data.slice(0,7)===data.slice(0,7));
+    const data=mesStr+'-'+String(dia).padStart(2,'0');
+    const ex=S.lancamentos.some(l=>l.recorrenteId===r.id&&l.data.slice(0,7)===mesStr);
     if(!ex)S.lancamentos.push({id:++S.nextId,data,desc:r.desc,cat:r.cat,tipo:r.tipo,quem:r.quem,valor:r.valor,cartaoId:r.cartaoId||'',obs:'recorrente',recorrenteId:r.id,parcela:1,totalParcelas:1});
+  });
+  // Lança assinaturas como despesas do mês
+  S.assinaturas.forEach(a=>{
+    const dia=Math.min(a.venc||1,new Date(localYear,localMonth+1,0).getDate());
+    const data=mesStr+'-'+String(dia).padStart(2,'0');
+    const ex=S.lancamentos.some(l=>l.assinaturaId===a.id&&l.data.slice(0,7)===mesStr);
+    if(!ex)S.lancamentos.push({id:++S.nextId,data,desc:a.emoji+' '+a.nome,cat:'Serviços',tipo:'despesa',quem:'Casal',valor:a.valor,cartaoId:'',obs:'assinatura',assinaturaId:a.id,parcela:1,totalParcelas:1});
   });
   save();
 }
