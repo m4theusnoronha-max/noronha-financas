@@ -230,6 +230,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .mic-btn.listening{background:var(--red);border-color:var(--red);color:#fff;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.4)}50%{box-shadow:0 0 0 8px rgba(192,57,43,0)}}
 .voice-status{font-size:12px;color:var(--text-muted);min-height:16px}
+/* VOICE MODAL */
+.vm-mic{width:72px;height:72px;border-radius:50%;border:2px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:32px;transition:var(--transition);margin:0 auto 16px;box-shadow:var(--shadow)}
+.vm-mic:hover{border-color:var(--navy);background:var(--navy);color:#fff}
+.vm-mic.listening{background:var(--red);border-color:var(--red);color:#fff;animation:pulse 1.2s infinite}
+.vm-textarea{width:100%;min-height:80px;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;font-size:15px;font-family:inherit;resize:vertical;background:var(--white);color:var(--text);transition:var(--transition)}
+.vm-textarea:focus{outline:none;border-color:var(--navy)}
+.vm-preview{background:var(--bg);border-radius:var(--radius-sm);padding:14px;margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vm-field{display:flex;flex-direction:column;gap:2px}
+.vm-field-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted)}
+.vm-field-value{font-size:14px;font-weight:600;color:var(--text)}
+.vm-field-value.receita{color:var(--green)}
+.vm-field-value.despesa{color:var(--red)}
 
 .sep{height:1px;background:var(--border);margin:18px 0}
 
@@ -415,8 +427,7 @@ body.readonly .card-title::after{content:' 👁 leitura';font-size:11px;color:va
   <div class="card mb">
     <div class="card-title">Novo Lançamento
       <div style="display:flex;align-items:center;gap:10px">
-        <div class="mic-btn" id="mic-lan" onclick="toggleVoice('lan')" title="Lançar por voz">🎤</div>
-        <span class="voice-status" id="vs-lan"></span>
+        <div class="mic-btn" onclick="openVoiceModal('lan')" title="Registrar por voz / texto inteligente">🎤</div>
       </div>
     </div>
     <div class="form-row r3">
@@ -755,11 +766,11 @@ body.readonly .card-title::after{content:' 👁 leitura';font-size:11px;color:va
   <div class="modal">
     <div class="modal-close" onclick="closeQuickModal()">✕</div>
     <div class="modal-title" id="q-title">Lançamento Rápido</div>
-    <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:18px">
-      <div class="mic-btn" id="mic-quick" onclick="toggleVoice('quick')" title="Falar para preencher">🎤</div>
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:18px;cursor:pointer" onclick="openVoiceModal('quick')">
+      <div class="mic-btn">🎤</div>
       <div>
-        <div style="font-size:13px;font-weight:500">Usar voz</div>
-        <div class="voice-status" id="vs-quick">Clique e fale: "Supermercado 150 reais Natália"</div>
+        <div style="font-size:13px;font-weight:500">Registrar por voz / texto inteligente</div>
+        <div class="voice-status">Clique para falar ou digitar em linguagem natural</div>
       </div>
     </div>
     <div class="form-row">
@@ -779,6 +790,35 @@ body.readonly .card-title::after{content:' 👁 leitura';font-size:11px;color:va
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
       <button class="btn btn-ghost" onclick="closeQuickModal()">Cancelar</button>
       <button class="btn btn-primary" id="q-submit" onclick="submitQuick()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE VOZ INTELIGENTE -->
+<div class="modal-overlay hidden" id="voice-modal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-close" onclick="closeVoiceModal()">✕</div>
+    <div class="modal-title">🎤 Registrar por Voz</div>
+    <div style="text-align:center;margin-bottom:8px">
+      <div class="vm-mic" id="vm-mic-btn" onclick="toggleVoiceMic()">🎤</div>
+      <div style="font-size:13px;color:var(--text-muted)" id="vm-status">Clique no microfone e fale, ou escreva abaixo</div>
+    </div>
+    <textarea class="vm-textarea" id="vm-text" placeholder='Ex: "gastei 85 reais no mercado hoje, foi a Natália"&#10;ou: "recebi 3000 de salário"&#10;ou: "paguei 120 no Nubank, combustível"'></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="vmClear()">Limpar</button>
+      <button class="btn btn-primary" style="flex:2" onclick="vmAnalisar()">🔍 Analisar</button>
+    </div>
+    <div id="vm-preview" class="vm-preview" style="display:none">
+      <div class="vm-field"><span class="vm-field-label">Tipo</span><span class="vm-field-value" id="vmp-tipo"></span></div>
+      <div class="vm-field"><span class="vm-field-label">Valor</span><span class="vm-field-value" id="vmp-valor"></span></div>
+      <div class="vm-field" style="grid-column:1/-1"><span class="vm-field-label">Descrição</span><span class="vm-field-value" id="vmp-desc"></span></div>
+      <div class="vm-field"><span class="vm-field-label">Categoria</span><span class="vm-field-value" id="vmp-cat"></span></div>
+      <div class="vm-field"><span class="vm-field-label">Quem</span><span class="vm-field-value" id="vmp-quem"></span></div>
+      <div class="vm-field"><span class="vm-field-label">Data</span><span class="vm-field-value" id="vmp-data"></span></div>
+      <div class="vm-field"><span class="vm-field-label">Conta</span><span class="vm-field-value" id="vmp-conta"></span></div>
+      <div style="grid-column:1/-1;margin-top:4px">
+        <button class="btn btn-primary" style="width:100%" onclick="vmAplicar()">✅ Preencher campos</button>
+      </div>
     </div>
   </div>
 </div>
@@ -914,47 +954,181 @@ function submitQuick(){
 }
 
 let recognition=null,listeningCtx=null;
-function toggleVoice(ctx){
-  if(listeningCtx===ctx){stopVoice();return}
-  stopVoice();
-  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){alert('Use Chrome para reconhecimento de voz.');return}
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  recognition=new SR();recognition.lang='pt-BR';recognition.continuous=false;recognition.interimResults=false;
-  listeningCtx=ctx;
-  document.getElementById('mic-'+ctx).classList.add('listening');
-  document.getElementById('vs-'+ctx).textContent='Ouvindo... fale agora';
-  recognition.onresult=e=>{
-    const txt=e.results[0][0].transcript;
-    parseVoice(txt,ctx);
-    document.getElementById('vs-'+ctx).textContent='✅ "'+txt+'"';
-    stopVoice();
-  };
-  recognition.onerror=err=>{document.getElementById('vs-'+ctx).textContent='Erro: '+err.error;stopVoice()};
-  recognition.onend=()=>{if(listeningCtx)stopVoice()};
-  recognition.start();
-}
-function stopVoice(){
-  if(recognition){try{recognition.stop()}catch(e){}}
-  recognition=null;
-  if(listeningCtx){
-    const m=document.getElementById('mic-'+listeningCtx);
-    if(m)m.classList.remove('listening');
-    listeningCtx=null;
+// ── VOICE MODAL ───────────────────────────────────────
+let _vmCtx='quick';
+let _vmRec=null;
+let _vmListening=false;
+let _vmParsed=null;
+
+const _VM_CAT_MAP=[
+  {rx:/supermercado|mercado|feira|hortifruti|padaria|açougue|pão|carne|legume/i,cat:'Alimentação'},
+  {rx:/restaurante|lanche|pizza|hamburguer|hambúrguer|ifood|rappi|delivery|almoço|jantar|café|bar/i,cat:'Alimentação'},
+  {rx:/combustível|gasolina|álcool|etanol|posto|uber|99|cabify|táxi|taxi|ônibus|metrô|metro|passagem/i,cat:'Transporte'},
+  {rx:/farmácia|remédio|médico|consulta|hospital|exame|plano.de.saúde|dentista|academia|ginásio/i,cat:'Saúde'},
+  {rx:/netflix|spotify|amazon|disney|hbo|youtube|prime|streaming|assinatura/i,cat:'Lazer'},
+  {rx:/cinema|teatro|show|festa|balada|viagem|hotel|hospedagem/i,cat:'Lazer'},
+  {rx:/aluguel|condomínio|luz|energia|água|internet|telefone|gás|iptu/i,cat:'Moradia'},
+  {rx:/roupa|sapato|tênis|calçado|loja|shopping|vestuário/i,cat:'Vestuário'},
+  {rx:/escola|faculdade|curso|livro|material|mensalidade/i,cat:'Educação'},
+  {rx:/salário|salario|freelance|freela|renda|pagamento|recebimento|dividendo|aluguel.recebido/i,cat:'Receita'},
+];
+
+function _vmDetectCat(txt){
+  for(const{rx,cat}of _VM_CAT_MAP){
+    if(rx.test(txt)){
+      const op=[...(document.getElementById(_vmCtx==='quick'?'q-cat':'lan-cat')?.options||[])].find(o=>o.value===cat);
+      if(op)return cat;
+    }
   }
+  // fallback: match against user's own categories by name
+  const userCats=S.categorias.map(c=>c.nome);
+  for(const c of userCats){if(new RegExp(c,'i').test(txt))return c;}
+  return '';
 }
-function parseVoice(txt,ctx){
-  const pfx=ctx==='quick'?'q-':'lan-';
-  const numM=txt.match(/(\d+(?:[.,]\d{1,2})?)/);
-  if(numM){const vEl=document.getElementById(pfx+'valor');if(vEl)vEl.value=parseFloat(numM[1].replace(',','.'))}
-  const desc=txt.replace(/(\d+(?:[.,]\d{1,2})?)\s*(?:reais?|r\$)?/i,'').trim();
-  const qEl=document.getElementById(pfx+'quem');
-  if(qEl){if(/natali/i.test(desc))qEl.value='Natália';else if(/matheus|mau/i.test(desc))qEl.value='Matheus';else qEl.value='Casal'}
-  const clean=desc.replace(/natali[aá]?|natália|matheus|casal/gi,'').replace(/\s+/g,' ').trim();
-  const dEl=document.getElementById(pfx+'desc');if(dEl&&clean)dEl.value=clean;
-  const catMap={'supermercado|mercado|feira|padaria|açougue':'Alimentação','combustível|gasolina|posto|uber|99':'Transporte','farmácia|remédio|médico|consulta':'Saúde','netflix|spotify|amazon|disney':'Lazer','aluguel|condomínio|luz|água|energia':'Moradia','academia|ginásio':'Saúde','roupa|sapato|loja':'Vestuário'};
-  const cEl=document.getElementById(pfx+'cat');
-  if(cEl){for(const[kw,cat]of Object.entries(catMap)){if(new RegExp(kw,'i').test(clean)){const op=[...cEl.options].find(o=>o.value===cat);if(op){cEl.value=cat;break}}}}
+
+function _vmDetectConta(txt){
+  const contas=['nubank','bradesco','itaú','itau','santander','caixa','bb','banco do brasil','inter','c6','picpay','mercado pago','will','next'];
+  for(const c of contas){if(new RegExp(c,'i').test(txt))return c.charAt(0).toUpperCase()+c.slice(1);}
+  return '';
 }
+
+function _vmParse(txt){
+  const r={tipo:'despesa',valor:null,desc:'',cat:'',quem:'Casal',data:new Date().toISOString().split('T')[0],conta:''};
+
+  // Tipo
+  if(/recebi|ganhei|entrou|salário|salario|renda|receita|paguei.me|transferência.recebida/i.test(txt)) r.tipo='receita';
+
+  // Quem
+  if(/natali/i.test(txt)) r.quem='Natália';
+  else if(/\bmatheus\b|\bmau\b/i.test(txt)) r.quem='Matheus';
+
+  // Data
+  const today=new Date();
+  if(/anteontem/i.test(txt)){const d=new Date(today);d.setDate(d.getDate()-2);r.data=d.toISOString().split('T')[0];}
+  else if(/ontem/i.test(txt)){const d=new Date(today);d.setDate(d.getDate()-1);r.data=d.toISOString().split('T')[0];}
+
+  // Valor: pega o primeiro número (ex: "85", "85,50", "1.200", "1.200,00")
+  const vM=txt.replace(/\./g,'').match(/(?:r\$\s*)?(\d+(?:[,]\d{1,2})?)/i);
+  if(vM) r.valor=parseFloat(vM[1].replace(',','.'));
+
+  // Conta / banco
+  r.conta=_vmDetectConta(txt);
+
+  // Limpa o texto para extrair descrição
+  let clean=txt
+    .replace(/(?:r\$\s*)?\d[\d.]*(?:[,]\d{1,2})?\s*(?:reais?|conto[s]?|pila[s]?)?/gi,'')
+    .replace(/natali[aá]?|natália|\bmatheus\b|\bmau\b|\bcasal\b/gi,'')
+    .replace(/\banteontem\b|\bontem\b|\bhoje\b/gi,'')
+    .replace(/\bgastei\b|\bpaguei\b|\bcomprei\b|\brecebi\b|\bganhei\b|\bfoi\b|\bda?\b|\bdo\b|\bna?\b|\bno\b|\bpelo?\b|\bpela?\b|\bpor\b|\buma?\b|\buns?\b/gi,' ')
+    .replace(/\s+/g,' ').trim()
+    .replace(/^[,.\s]+|[,.\s]+$/g,'');
+  // capitaliza primeira letra
+  if(clean) r.desc=clean.charAt(0).toUpperCase()+clean.slice(1);
+
+  // Categoria
+  r.cat=_vmDetectCat(txt);
+
+  return r;
+}
+
+function openVoiceModal(ctx){
+  _vmCtx=ctx;_vmParsed=null;
+  document.getElementById('vm-text').value='';
+  document.getElementById('vm-status').textContent='Clique no microfone e fale, ou escreva abaixo';
+  document.getElementById('vm-preview').style.display='none';
+  document.getElementById('vm-mic-btn').classList.remove('listening');
+  document.getElementById('voice-modal').classList.remove('hidden');
+}
+
+function closeVoiceModal(){
+  _vmStopRec();
+  document.getElementById('voice-modal').classList.add('hidden');
+}
+
+function vmClear(){
+  _vmStopRec();
+  document.getElementById('vm-text').value='';
+  document.getElementById('vm-preview').style.display='none';
+  document.getElementById('vm-status').textContent='Clique no microfone e fale, ou escreva abaixo';
+}
+
+function _vmStopRec(){
+  if(_vmRec){try{_vmRec.stop()}catch(e){}}
+  _vmRec=null;_vmListening=false;
+  const btn=document.getElementById('vm-mic-btn');
+  if(btn){btn.classList.remove('listening');btn.textContent='🎤';}
+}
+
+function toggleVoiceMic(){
+  if(_vmListening){_vmStopRec();return;}
+  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){
+    alert('Reconhecimento de voz disponível apenas no Chrome.');return;
+  }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  _vmRec=new SR();_vmRec.lang='pt-BR';_vmRec.continuous=false;_vmRec.interimResults=true;
+  _vmListening=true;
+  const btn=document.getElementById('vm-mic-btn');
+  btn.classList.add('listening');btn.textContent='⏹';
+  document.getElementById('vm-status').textContent='Ouvindo... fale agora';
+  _vmRec.onresult=e=>{
+    let txt='';
+    for(let i=0;i<e.results.length;i++) txt+=e.results[i][0].transcript;
+    document.getElementById('vm-text').value=txt;
+  };
+  _vmRec.onerror=err=>{
+    document.getElementById('vm-status').textContent='Erro: '+err.error;
+    _vmStopRec();
+  };
+  _vmRec.onend=()=>{
+    _vmStopRec();
+    document.getElementById('vm-status').textContent='✅ Pronto! Clique em Analisar';
+    if(document.getElementById('vm-text').value.trim()) vmAnalisar();
+  };
+  _vmRec.start();
+}
+
+function vmAnalisar(){
+  const txt=document.getElementById('vm-text').value.trim();
+  if(!txt){alert('Digite ou fale algo primeiro.');return;}
+  _vmParsed=_vmParse(txt);
+  const p=_vmParsed;
+  const el=id=>document.getElementById(id);
+  el('vmp-tipo').textContent=p.tipo==='receita'?'+ Receita':'− Despesa';
+  el('vmp-tipo').className='vm-field-value '+(p.tipo==='receita'?'receita':'despesa');
+  el('vmp-valor').textContent=p.valor!=null?'R$ '+p.valor.toFixed(2).replace('.',','):'—';
+  el('vmp-desc').textContent=p.desc||'—';
+  el('vmp-cat').textContent=p.cat||'—';
+  el('vmp-quem').textContent=p.quem;
+  const [ay,am,ad]=p.data.split('-');
+  el('vmp-data').textContent=ad+'/'+am+'/'+ay;
+  el('vmp-conta').textContent=p.conta||'—';
+  el('vm-preview').style.display='grid';
+}
+
+function vmAplicar(){
+  if(!_vmParsed)return;
+  const p=_vmParsed;
+  const pfx=_vmCtx==='quick'?'q-':'lan-';
+  const el=id=>document.getElementById(id);
+  if(el(pfx+'tipo')) el(pfx+'tipo').value=p.tipo;
+  if(_vmCtx==='quick'&&el('q-title')) el('q-title').textContent=p.tipo==='receita'?'Registrar Receita':'Registrar Despesa';
+  if(_vmCtx==='quick'&&el('q-submit')) el('q-submit').textContent=p.tipo==='receita'?'💚 Salvar Receita':'🔴 Salvar Despesa';
+  if(p.valor!=null&&el(pfx+'valor')) el(pfx+'valor').value=p.valor;
+  if(p.desc&&el(pfx+'desc')) el(pfx+'desc').value=p.desc;
+  if(p.cat&&el(pfx+'cat')){const op=[...el(pfx+'cat').options].find(o=>o.value===p.cat);if(op)el(pfx+'cat').value=p.cat;}
+  if(el(pfx+'quem')) el(pfx+'quem').value=p.quem;
+  if(el(pfx+'data')) el(pfx+'data').value=p.data;
+  if(p.conta&&el(pfx+'conta')) el(pfx+'conta').value=p.conta;
+  closeVoiceModal();
+  if(_vmCtx==='quick'&&document.getElementById('quick-modal').classList.contains('hidden')){
+    document.getElementById('quick-modal').classList.remove('hidden');
+  }
+  showToast('Campos preenchidos! Confira e salve.');
+}
+
+// mantém compatibilidade com código antigo que chamava stopVoice()
+function stopVoice(){_vmStopRec();}
+// ─────────────────────────────────────────────────────
 
 function autoLancar(){
   const now=new Date();
